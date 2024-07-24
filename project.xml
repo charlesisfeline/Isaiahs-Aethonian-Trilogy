@@ -139,6 +139,9 @@
 	<!-- Comment this out to disable support for Away3D Flixel Intergration (reduces compile times)-->
 	<define name="THREE_D_SUPPORT" />
 
+	<!-- Comment this out to disable the use of luajit. !-->
+	<define name="ENABLE_LUA" if="windows || mac || linux"/>
+
 	<!-- Comment this out to disable video cutscene support, in case of compilation errors. !-->
 	<section if="cpp">
 		<define name="VIDEO_CUTSCENES" if="desktop || android" />
@@ -177,6 +180,7 @@
 	<haxelib name="flxanimate" />
 
 	<haxelib name="hscript-improved" />
+	<haxelib name="linc_luajit" if="ENABLE_LUA" />
 	<haxelib name="hxdiscord_rpc" if="DISCORD_RPC"/>
 	<haxelib name="markdown" />
 

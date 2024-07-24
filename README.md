@@ -1,3 +1,12 @@
+# Friday Night Funkin' - Bird Engine
+## DISCLAIMER - THIS IS A SUB-ENGINE OF CODENAME ENGINE
+
+This custom engine includes the following features
+
+- Full Lua Script support (non-Psych)
+    - Gameplay Scripting
+    - Custom States (for real! >:3)
+
 # Friday Night Funkin' - Codename Engine (WIP)
 
 ## PLEASE NOTE - THIS IS STILL IN A BETA STATE
