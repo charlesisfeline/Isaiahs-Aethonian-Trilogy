@@ -1,22 +1,20 @@
 # Friday Night Funkin' - Bird Engine
-## DISCLAIMER - THIS IS A SUB-ENGINE OF CODENAME ENGINE
+## DISCLAIMER - THIS IS A SUB-ENGINE OF [CODENAME ENGINE](https://github.com/FNF-CNE-Devs/CodenameEngine)
 
-This custom engine includes the following features
+Originally used on FNF Vs SC. This custom engine includes the following features
 
 - Full Lua Script support (non-Psych)
     - Gameplay Scripting
     - Custom States (for real! >:3)
 
-# Friday Night Funkin' - Codename Engine (WIP)
-
-## PLEASE NOTE - THIS IS STILL IN A BETA STATE
-### Mods created with beta versions of Codename may not be compatible with the release version
 Known issues in the beta:
 - Some options are missing
 
 Build instructions are below. Press TAB on the main menu to switch mods.
 
-Also, the command `.\cne test` uses the source assets folder instead of the export one for easier development (Although you can still use `lime test windows` normally).
+Also, the command `.\bird test` uses the source assets folder instead of the export one for easier development (Although you can still use `lime test windows` normally).
+
+### Original Engine Info
 
 ## Codename Engine
 
