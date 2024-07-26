@@ -40,8 +40,8 @@ jobs:
       - name: Uploading artifact (entire build)
         uses: actions/upload-artifact@v2
         with:
-          name: Codename Engine
-          path: CodenameEngine.tar.gz
+          name: Bird Engine
+          path: BirdEngine.tar.gz
       # - name: Uploading artifact (executable)
       #   uses: actions/upload-artifact@v2
       #   with:
