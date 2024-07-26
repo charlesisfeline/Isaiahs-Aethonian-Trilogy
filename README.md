@@ -5,7 +5,7 @@ Originally used on FNF Vs SC. This custom engine includes the following features
 
 - Full Lua Script support (non-Psych)
     - Gameplay Scripting
-    - Custom States (for real! >:3)
+    - Custom States (soon...)
 
 Known issues in the beta:
 - Some options are missing
