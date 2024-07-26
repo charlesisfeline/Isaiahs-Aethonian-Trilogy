@@ -84,7 +84,12 @@ class PlayState extends MusicBeatState
 	 * Script Pack of all the scripts being ran.
 	 */
 	public var scripts:ScriptPack;
-
+	#if ENABLE_LUA
+	/**
+	 * Map containing all the sprites created from Lua
+	 */
+	public var luaSprites:Map<String, FunkinSprite> = new Map<String, FunkinSprite>();
+	#end
 	/**
 	 * Array of all the players in the stage.
 	 */

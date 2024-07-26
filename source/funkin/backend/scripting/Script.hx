@@ -111,7 +111,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	public static var scriptExtensions:Array<String> = [
 		"hx", "hscript", "hsc", "hxs",
 		"pack", // combined file
-		"lua" /** ACTUALLY NOT SUPPORTED, ONLY FOR THE MESSAGE **/
+		"lua" /** ACTUALLY NOT SUPPORTED, ONLY FOR THE MESSAGE, until now... **/
 	];
 
 	/**
@@ -147,7 +147,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	public static function create(path:String):Script {
 		if (Assets.exists(path)) {
 			return switch(Path.extension(path).toLowerCase()) {
-				case "hx" | "hscript" | "hsc" | "hxs":
+				case "hx" | "hscript" | "hsc" | "hxs" | "hxc":
 					new HScript(path);
 				case "pack":
 					var arr = Assets.getText(path).split("________PACKSEP________");
@@ -169,7 +169,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	 */
 	public static function fromString(code:String, path:String):Script {
 		return switch(Path.extension(path).toLowerCase()) {
-			case "hx" | "hscript" | "hsc" | "hxs":
+			case "hx" | "hscript" | "hsc" | "hxs" | "hxc":
 				new HScript(path).loadFromString(code);
 			case "lua":
 				Logs.trace("Lua is not supported in this engine. Use HScript instead.", ERROR);
