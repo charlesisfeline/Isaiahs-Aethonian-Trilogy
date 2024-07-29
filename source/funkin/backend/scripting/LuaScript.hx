@@ -1,13 +1,9 @@
 package funkin.backend.scripting;
+
 #if ENABLE_LUA
-import funkin.backend.chart.ChartData.ChartEvent;
-import funkin.backend.scripting.lua.LuaTools;
-import flixel.util.typeLimit.OneOfThree;
-import lime.system.System;
 import haxe.io.Path;
-import funkin.menus.StoryMenuState.WeekData;
-import funkin.backend.system.Conductor;
-import funkin.backend.assets.ModsFolder;
+import funkin.backend.scripting.lua.LuaPlayState;
+import funkin.backend.scripting.lua.LuaTools;
 import flixel.FlxState;
 
 import llua.Lua;
@@ -23,131 +19,147 @@ using llua.Lua;
 using llua.LuaL;
 using llua.Convert;
 
-class LuaScript extends FlxBasic implements IFlxDestroyable{
-
-	public static function getPlayStateVariables():Map<String, Dynamic> {
-		return [
-			// PlayState property things 
-			"curBpm" 			=> Conductor.bpm,
-			"songBpm" 			=> PlayState.SONG.meta.bpm,
-			"scrollSpeed" 		=> PlayState.SONG.scrollSpeed,
-			"crochet" 			=> Conductor.crochet,
-			"stepCrochet" 		=> Conductor.stepCrochet,
-			"songLength" 		=> FlxG.sound.music.length,
-			"songName" 			=> PlayState.SONG.meta.name,
-			"startedCountdown" 	=> PlayState.instance.startCountdown,
-			"stage" 			=> PlayState.SONG.stage,
-			"storyMode" 		=> PlayState.isStoryMode,
-			"difficulty" 		=> PlayState.difficulty,
-			"week" 				=> PlayState.storyWeek.name,
-			"seenCutscene" 		=> PlayState.seenCutscene,
-			"hasVocals" 		=> PlayState.SONG.meta.needsVoices,
-			// Camera
-			"camX" 			=> 0,
-			"camY" 			=> 0,
-			// Game Screen
-			"gameWidth" 	=> FlxG.width,
-			"gameHeight" 	=> FlxG.height,
-
-			// Variables
-			"curBeat" 		=> 0,
-			"curBeatFloat" 	=> 0.0,
-			"curStep" 		=> 0,
-			"curStepFloat" 	=> 0.0,
-
-			"score" 		=> 0,
-			"misses" 		=> 0,
-			"hits" 			=> 0,
-			"combo" 		=> 0,
-
-			"rating" 		=> '',
-
-			"inGameOver" 	=> false,
-			
-			"healthGainMulti" => 1.0,
-			"healthLossMulti" => 1.0,
-
-			"botPlay" 		=> PlayState.instance.playerStrums.cpu,
-			
-			// TODO: playerStrum/opponentStrum position
-
-			"boyfriendName" => PlayState.instance.boyfriend.curCharacter,
-			"boyfriendX" 	=> PlayState.instance.stage.characterPoses['boyfriend'].x,
-			"boyfriendY" 	=> PlayState.instance.stage.characterPoses['boyfriend'].y,
-			"boyfriendRawX" => PlayState.instance.boyfriend.x,
-			"boyfriendRawY" => PlayState.instance.boyfriend.y,
-			"dadName" 		=> PlayState.instance.dad.curCharacter,
-			"dadX" 			=> PlayState.instance.stage.characterPoses['dad'].x,
-			"dadY" 			=> PlayState.instance.stage.characterPoses['dad'].y,
-			"dadRawX" 		=> PlayState.instance.dad.x,
-			"dadRawY" 		=> PlayState.instance.dad.y,
-			"girlfriendName" => PlayState.instance.gf.curCharacter,
-			"girlfriendX" 	=> PlayState.instance.stage.characterPoses['girlfriend'].x,
-			"girlfriendY" 	=> PlayState.instance.stage.characterPoses['girlfriend'].y,
-			"girlfriendRawX" => PlayState.instance.gf.x,
-			"girlfriendRawY" => PlayState.instance.gf.y,
-
-			// Preferences
-			"downScroll" => Options.downscroll,
-			"framerate" => Options.framerate,
-			"ghostTapping" => Options.ghostTapping,
-			"camZoomOnBeat" => Options.camZoomOnBeat,
-			"lowMemoryMode" => Options.lowMemoryMode,
-			"antialiasing" => Options.antialiasing,
-			"gameplayShaders" => Options.gameplayShaders,
-			"currentModDirectory" => ModsFolder.currentModFolder,
-
-			"currentSystem" => LuaTools.getCurrentSystem()
-		];
-	}
+class LuaScript extends Script{
 
     public var state:State = null;
-	public var path:String = '';
+	public var luaPath:String = '';
     public var callbacks:Map<String, Dynamic> = [];
 
-	public function new(path:String) {
-		super();
+	public static function getDefaultVariables(?script:Script):Map<String, Dynamic> {
+		return LuaPlayState.getPlayStateVariables();
 	}
 
-    public function onCreate(path:String) {
+	public function new(path:String) {
+		super(path, true);
+		rawPath = path;
+		path = Paths.getFilenameFromLibFile(path);
+
+		fileName = Path.withoutDirectory(path);
+		extension = Path.extension(path);
+		this.path = path;
+		onCreate(path);
+		for(k=>e in getDefaultVariables(this)) {
+			set(k, e);
+		}
+		set("disableScript", () -> {
+			active = false;
+		});
+	}
+
+    public override function onCreate(path:String) {
 
         state = LuaL.newstate();
 		LuaL.openlibs(state);
 
-		this.path = path.trim();
-
+		this.luaPath = path.trim();
+		//For now, it only executes on PlayState
 		var game = PlayState.instance;
 		//game.stateScripts.scripts.push(this);
 		
-        
+        set('Event_Cancel', LuaTools.Event_Cancel);
+        set('Event_Continue', LuaTools.Event_Continue);
+
+		#if GLOBAL_SCRIPT
+		funkin.backend.scripting.GlobalScript.call("onScriptCreated", [null, "luascript"]);
+		#end
     }
 
-    public function onLoad() {
+    public override function onLoad() {
         if (state.dostring(Assets.getText(path)) != 0)
             return;
     }
 
-    public function onCall(funcName:String, args:Array<Dynamic>):Dynamic {
-        return null;
+    public override function onCall(funcName:String, args:Array<Dynamic>):Dynamic {
+		try {
+			if(state == null) return LuaTools.Event_Continue;
+
+			Lua.getglobal(state, funcName);
+			var type = Lua.type(state, -1);
+
+			if (type != Lua.LUA_TFUNCTION) 
+			{
+				if (type > Lua.LUA_TNIL)
+					Logs.trace("ERROR (" + funcName + "): attempt to call a " + LuaTools.typeToString(type) + " value", ERROR);
+
+				Lua.pop(state, 1);
+				return LuaTools.Event_Continue;
+			}
+
+			for (arg in args) Convert.toLua(state, arg);
+			var status:Int = Lua.pcall(state, args.length, 1, 0);
+
+			if (status != Lua.LUA_OK) {
+				var error:String = getErrorMessage(status);
+				Logs.trace("ERROR (" + funcName + "): " + error, ERROR);
+				return LuaTools.Event_Continue;
+			}
+
+			var result:Dynamic = cast Convert.fromLua(state, -1);
+			if (result == null) result = LuaTools.Event_Continue;
+
+			Lua.pop(state, 1);
+			return result;
+		}
+		catch(e)
+		{
+			trace(e);
+		}
+		
+		return LuaTools.Event_Continue;
     }
 
-    public function set(variable:String, value:Dynamic) {
-        
+    public override function set(variable:String, value:Dynamic) {
+        if(state == null) return;
+
+		Convert.toLua(state, value);
+		Lua.setglobal(state, variable);
     }
 
-	public override function destroy() {
-		if (state != null) {
-            Lua.close(state);
-            state = null;
-        }
+	public function addCallback(funcName:String, func:Dynamic) {
+		Lua_helper.add_callback(state, funcName, func);
 	}
 
-    public function reload() {
+	public override function destroy() {
+		if(state == null) {
+			return;
+		}
+		Lua.close(state);
+		state = null;
+	}
+
+    public override function reload() {
         Logs.trace('Hot-reloading is currently not supported on Lua.', WARNING);
     }
 
-    public function setParent(variable:Dynamic) {
+    public override function setParent(variable:Dynamic) {
 
+	}
+
+	public override function setPublicMap(map:Map<String, Dynamic>) {
+		super.setPublicMap(map);
+	}
+
+	public function getErrorMessage(status:Int):String {
+		var v:String = Lua.tostring(state, -1);
+		Lua.pop(state, 1);
+
+		if (v != null) v = v.trim();
+		if (v == null || v == "") {
+			switch(status) {
+				case Lua.LUA_ERRRUN: return "Runtime Error";
+				case Lua.LUA_ERRMEM: return "Memory Allocation Error";
+				case Lua.LUA_ERRERR: return "Critical Error";
+			}
+			return "Unknown Error";
+		}
+
+		return v;
+		return null;
+	}
+
+	public override function loadFromString(code:String):Script {
+		// TODO: Lua execution from String
+		return this;
 	}
 }
 #end

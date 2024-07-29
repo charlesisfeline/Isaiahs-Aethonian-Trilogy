@@ -93,6 +93,8 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 
 	public var scriptsAllowed:Bool = true;
 
+	public var luaScriptsAllowed:Bool = false;
+
 	public var scriptName:String = null;
 
 	public static var skipTransOut:Bool = false;
@@ -105,9 +107,10 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 	inline function get_controlsP2():Controls
 		return PlayerSettings.player2.controls;
 
-	public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
+	public function new(scriptsAllowed:Bool = true, ?scriptName:String, ?luaScriptsAllowed:Bool = false) {
 		super();
 		this.scriptsAllowed = #if SOFTCODED_STATES scriptsAllowed #else false #end;
+		this.luaScriptsAllowed = #if ENABLE_LUA luaScriptsAllowed #else false #end;
 		this.scriptName = scriptName;
 	}
 
@@ -120,7 +123,7 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 				var scriptName = this.scriptName != null ? this.scriptName : className.substr(className.lastIndexOf(".")+1);
 				for (i in funkin.backend.assets.ModsFolder.getLoadedMods()) {
 					var path = Paths.script('data/states/${scriptName}/LIB_$i');
-					var script = Script.create(path);
+					var script = Script.create(path, luaScriptsAllowed);
 					if (script is DummyScript) continue;
 					script.remappedNames.set(script.fileName, '$i:${script.fileName}');
 					stateScripts.add(script);

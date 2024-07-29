@@ -144,7 +144,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	 * Creates a script from the specified asset path. The language is automatically determined.
 	 * @param path Path in assets
 	 */
-	public static function create(path:String):Script {
+	public static function create(path:String, ?useLua:Bool = false):Script {
 		if (Assets.exists(path)) {
 			return switch(Path.extension(path).toLowerCase()) {
 				case "hx" | "hscript" | "hsc" | "hxs" | "hxc":
@@ -153,8 +153,12 @@ class Script extends FlxBasic implements IFlxDestroyable {
 					var arr = Assets.getText(path).split("________PACKSEP________");
 					fromString(arr[1], arr[0]);
 				case "lua":
-					Logs.trace("Lua is not supported in this engine. Use HScript instead.", ERROR);
-					new DummyScript(path);
+					if(useLua)
+						new LuaScript(path);
+					else {
+						Logs.trace("Lua is not enabled. Use HScript instead.", ERROR);
+						new DummyScript(path);
+					}
 				default:
 					new DummyScript(path);
 			}
@@ -167,13 +171,17 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	 * @param code code
 	 * @param path filename
 	 */
-	public static function fromString(code:String, path:String):Script {
+	public static function fromString(code:String, path:String, ?useLua:Bool = false):Script {
 		return switch(Path.extension(path).toLowerCase()) {
 			case "hx" | "hscript" | "hsc" | "hxs" | "hxc":
 				new HScript(path).loadFromString(code);
 			case "lua":
-				Logs.trace("Lua is not supported in this engine. Use HScript instead.", ERROR);
-				new DummyScript(path).loadFromString(code);
+				if(useLua)
+					new LuaScript(path).loadFromString(code);
+				else {
+					Logs.trace("Lua is not supported in this engine. Use HScript instead.", ERROR);
+					new DummyScript(path).loadFromString(code);
+				}
 			default:
 				new DummyScript(path).loadFromString(code);
 		}
@@ -183,9 +191,9 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	 * Creates a new instance of the script class.
 	 * @param path
 	 */
-	public function new(path:String) {
+	public function new(path:String, ?lua:Bool = false) {
 		super();
-
+		if(lua) return;
 		rawPath = path;
 		path = Paths.getFilenameFromLibFile(path);
 
@@ -284,7 +292,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	public function get(variable:String):Dynamic {return null;}
 
 	/**
-	 * Gets the variable `variable` from the script's variables.
+	 * Sets the variable `variable` from the script's variables.
 	 * @param variable Name of the variable.
 	 * @return Variable (or null if it doesn't exists)
 	 */

@@ -1,5 +1,6 @@
 package funkin.backend.scripting;
 
+import funkin.backend.scripting.lua.LuaTools;
 import flixel.util.FlxStringUtil;
 import funkin.backend.scripting.events.CancellableEvent;
 
@@ -67,10 +68,24 @@ class ScriptPack extends Script {
 	public inline function event<T:CancellableEvent>(func:String, event:T):T {
 		for(e in scripts) {
 			if(!e.active) continue;
-
+			if(e is LuaScript) continue;
 			e.call(func, [event]);
 			if (event.cancelled && !event.__continueCalls) break;
 		}
+		return event;
+	}
+
+	public inline function luaEvent(func:String, value:Dynamic):Dynamic {
+		
+		var event:Dynamic = null;
+
+		for(e in scripts) {
+			if(!(e is LuaScript)) continue;
+
+			event = e.call(func, [value]);
+			if(event == LuaTools.Event_Cancel) break;
+		}
+
 		return event;
 	}
 
