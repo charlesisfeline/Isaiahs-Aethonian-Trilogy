@@ -90,8 +90,11 @@ class LuaScript extends Script{
     }
 
     public override function onLoad() {
-        if (state.dostring(Assets.getText(path)) != 0)
+        var code = Assets.getText(path);
+		if(code != null && code.trim() != "") {
+			if (state.dostring(code) != 0)
             this.error('${state.tostring(-1)}');
+		}
     }
 
     public override function onCall(funcName:String, args:Array<Dynamic>):Dynamic {
