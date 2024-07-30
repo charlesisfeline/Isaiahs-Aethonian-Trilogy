@@ -89,7 +89,12 @@ class PlayState extends MusicBeatState
 	/**
 	 * Map containing all the objects created from Lua
 	 */
-	public var luaObjects:Map<String, Dynamic> = new Map<String, Dynamic>();
+	public var luaObjects(default, never):Map<String, Map<String, Dynamic>> = [
+		"SPRITE" => new Map<String, Dynamic>(),
+		"TEXT" => new Map<String, Dynamic>(),
+		"TWEEN" => new Map<String, Dynamic>(),
+		"SHADER" => new Map<String, Dynamic>()
+	];
 	#end
 	/**
 	 * Array of all the players in the stage.

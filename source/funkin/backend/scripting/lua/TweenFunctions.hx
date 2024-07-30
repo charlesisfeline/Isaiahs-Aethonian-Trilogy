@@ -7,8 +7,9 @@ class TweenFunctions {
 	public static function getTweenFunctions(?script:Script):Map<String, Dynamic> {
 		return [
 			"tween" 	=> function(tweenName:String, object:String, property:String, value:Dynamic, duration:Float, ease:String, type:String, timeDelayed:Int = 0) {
-				var objectToTween = LuaTools.getObject(object);
+				var objectToTween:Dynamic = LuaTools.getObject(object);
 				var propertyToUse:Dynamic = null;
+				if(objectToTween == null) return;
 				switch(property){
 					case 'x': propertyToUse = {x: value};
 					case 'y': propertyToUse = {y: value};
@@ -17,17 +18,19 @@ class TweenFunctions {
 					default: return; // Don't try to do the tween
 				};
 				// cancels the current tween of the selected object
-				FlxTween.cancelTweensOf(objectToTween);
+				if(PlayState.instance.luaObjects["TWEEN"].exists(tweenName))
+					cast(PlayState.instance.luaObjects["TWEEN"].get(tweenName), FlxTween).cancel();
 
-				FlxTween.tween(objectToTween, propertyToUse, duration, 
+				PlayState.instance.luaObjects["TWEEN"].set(tweenName, FlxTween.tween(objectToTween, propertyToUse, duration, 
 				{
 					ease: LuaTools.getEase(ease), 
 					type: LuaTools.getTweenType(type), 
 					startDelay: timeDelayed,
 					onComplete: (_) -> {
+						PlayState.instance.luaObjects["TWEEN"].remove(tweenName);
 						script.call('onTweenFinished', [tweenName, object]);
 					}
-				});
+				}));
 			}
 		];
 	}

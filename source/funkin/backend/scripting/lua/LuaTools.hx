@@ -41,13 +41,16 @@ class LuaTools {
 		return object;
 	}
 
-	public static function getLuaObject(name:String){
+	public static function getLuaObject(name:String):Dynamic {
 		var object:Dynamic = null;
 
-		if(PlayState.instance.luaObjects.exists(name)) {
-			object = PlayState.instance.luaObjects.get(name);
+		if(PlayState.instance.luaObjects["SPRITE"].exists(name)) {
+			object = PlayState.instance.luaObjects["SPRITE"].get(name);
 		}
-		if(object == null) {
+		else if(PlayState.instance.luaObjects["TEXT"].exists(name)) {
+			object = PlayState.instance.luaObjects["TEXT"].get(name);
+		}
+		else if(object == null) {
 			object = Reflect.getProperty(PlayState.instance, name);
 		}
 
@@ -107,4 +110,10 @@ class LuaTools {
 		}
 	}
 	#end
+}
+
+enum abstract ObjectType(String) {
+	var SPRITE;
+	var TWEEN;
+	var SHADER;
 }

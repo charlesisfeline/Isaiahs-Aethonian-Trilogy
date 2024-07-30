@@ -19,7 +19,7 @@ class LuaPlayState {
 			"scrollSpeed" 		=> PlayState.SONG.scrollSpeed,
 			"crochet" 			=> Conductor.crochet,
 			"stepCrochet" 		=> Conductor.stepCrochet,
-			"songLength" 		=> FlxG.sound.music.length,
+			"songLength" 		=> (!PlayState.chartingMode) ? FlxG.sound.music.length : 0.0,
 			"songName" 			=> PlayState.SONG.meta.name,
 			"startedCountdown" 	=> PlayState.instance.startedCountdown,
 			"stage" 			=> PlayState.SONG.stage,
@@ -91,12 +91,9 @@ class LuaPlayState {
 		];
 	}
 
-	public static function getPlayStateFunctions():Map<String, Dynamic> {
+	public static function getPlayStateFunctions(?script:Script):Map<String, Dynamic> {
 		return [
 			"callFunction" => function(script:String, func:String, ?args:Array<OneOfThree<Int, Float, Bool>>) {
-				if(args == null)
-					args = [];
-
 				PlayState.instance.scripts.call(func, args);
 				return;
 			},
@@ -104,21 +101,20 @@ class LuaPlayState {
 				var event:ChartEvent = {name: event, time: Conductor.songPosition, params: args};
 				PlayState.instance.executeEvent(event);
 			},
-			"shake" => function(camera:String, amount:Float, time:Float) {
+			"shake" => function(camera:String, ?amount:Float = 0.05, ?time:Float = 0.5) {
 				LuaTools.getCamera(camera.toLowerCase()).shake(amount, time);
 			},
-			"createFunkinSprite" => function(name:String, ?imagePath:String = null, ?x:Float = 0, ?y:Float = 0)
+			"createSprite" => function(name:String, ?imagePath:String = null, ?x:Float = 0, ?y:Float = 0)
 			{
-				var theSprite:FunkinSprite = new FunkinSprite(x, y);
+				var theSprite:FlxSprite = new FlxSprite(x, y);
 				if(imagePath != null && imagePath.length > 0)
 					theSprite.loadGraphic(Paths.image(imagePath));
-				PlayState.instance.luaObjects.set(name, theSprite);
-				theSprite.active = true;
+				PlayState.instance.luaObjects["SPRITE"].set(name, theSprite);
 			},
-			"addFunkinSprite" => function(name:String, ?camera:String = "camGame") {
-				var sprite:FunkinSprite = null;
-				if(PlayState.instance.luaObjects.exists(name))
-					sprite = PlayState.instance.luaObjects.get(name);
+			"addSprite" => function(name:String, ?camera:String = "camGame") {
+				var sprite:FlxSprite = null;
+				if(PlayState.instance.luaObjects["SPRITE"].exists(name))
+					sprite = PlayState.instance.luaObjects["SPRITE"].get(name);
 
 				if(sprite == null) return;
 				

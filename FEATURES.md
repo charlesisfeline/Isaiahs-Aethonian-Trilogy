@@ -1,5 +1,5 @@
-# Codename Engine features
-This markdown file contains every single feature Codename has, separated into multiple categories. List may be incomplete.
+# Bird Engine features
+This markdown file contains every single feature Bird(Codename) has, separated into multiple categories. List may be incomplete.
 
 _**QOL = Quality of Life**_
 
@@ -40,6 +40,8 @@ _**QOL = Quality of Life**_
         - Allows you to use for example `boyfriend` instead of `PlayState.boyfriend` or `game.boyfriend`, for smaller and easier to comprehend code.
         - Allows you to use `@:bypassAccessor`
         - Allows you to use maps
+	- Support for `linc-luajit`, a LuaJIT bindings to allow Lua to make modding more simplified.
+		- Same function call system from HScript
     - Usage of XML files for Characters instead of hardcoding them.
         - Animation names, prefixes, indices, etc... can be set in the XML without an additional line of code.
         - Offsets are automatically fixed. That means changes such as scaling, rotation, and playing as an opponent character wont break them.

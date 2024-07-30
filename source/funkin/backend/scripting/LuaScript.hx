@@ -1,5 +1,6 @@
 package funkin.backend.scripting;
 
+import funkin.backend.scripting.lua.ShaderFunctions;
 import funkin.backend.scripting.lua.HScriptFunctions;
 import funkin.backend.scripting.lua.ReflectionFunctions;
 #if ENABLE_LUA
@@ -26,9 +27,11 @@ class LuaScript extends Script{
 
     public var state:State = null;
 	public var luaPath:String = '';
-    public var callbacks:Map<String, Dynamic> = [];
+    public var callbacks:Map<String, Dynamic> = new Map<String, Dynamic>();
 
 	var game:MusicBeatState;
+
+	public static var curLuaScript:LuaScript = null;
 
 	public static function getPlayStateVariables(?script:Script):Map<String, Dynamic> {
 		return LuaPlayState.getPlayStateVariables();
@@ -49,26 +52,40 @@ class LuaScript extends Script{
 			for(k=>e in LuaPlayState.getPlayStateVariables(this)) {
 				set(k, e);
 			}
-			for(k=>e in LuaPlayState.getPlayStateFunctions()) {
+			for(k=>e in LuaPlayState.getPlayStateFunctions(this)) {
+				addCallback(k, e);
+			}
+			for(k=>e in TweenFunctions.getTweenFunctions(this)) {
 				addCallback(k, e);
 			}
 			for(k=>e in ReflectionFunctions.getReflectFunctions(game, this)) {
 				addCallback(k, e);
 			}
 			for(k=>e in HScriptFunctions.getHScriptFunctions(this)) {
-				addCallback(k, e);
+				switch(k) {
+					case "executeScript":
+						addCallback(k, e, true);
+					default:
+						addCallback(k, e);
+				}
+				
+			}
+			for(k=>e in ShaderFunctions.getShaderFunctions(this)) {
+				switch(k) {
+					case "initShader" | "addShader": 
+						addCallback(k, e, true);
+					default:
+						addCallback(k, e);
+				}
 			}
 		}
 		for(k=>e in LuaPlayState.getOptionsVariables(this)) {
 			set(k, e);
 		}
-		for(k=>e in TweenFunctions.getTweenFunctions(this)) {
-			addCallback(k, e);
-		}
 		
 		addCallback("disableScript", function() {
 			close();
-		});
+		}, true);
 	}
 
     public override function onCreate(path:String) {
@@ -98,6 +115,7 @@ class LuaScript extends Script{
     }
 
     public override function onCall(funcName:String, args:Array<Dynamic>):Dynamic {
+		curLuaScript = this;
 		try {
 			if(state == null) return LuaTools.Event_Continue;
 
@@ -143,8 +161,10 @@ class LuaScript extends Script{
 		Lua.setglobal(state, variable);
     }
 
-	public function addCallback(funcName:String, func:Dynamic) {
-		Lua_helper.add_callback(state, funcName, func);
+	public function addCallback(funcName:String, func:Dynamic, ?isLocal:Bool = false) {
+		if(isLocal)
+			callbacks.set(funcName, func);
+		Lua_helper.add_callback(state, funcName, (isLocal) ? null : func);
 	}
 
 	public override function destroy() {
