@@ -4,11 +4,14 @@ import funkin.backend.assets.ModsFolder;
 import funkin.backend.system.Conductor;
 import funkin.backend.scripting.lua.LuaTools;
 import funkin.backend.chart.ChartData.ChartEvent;
+import funkin.game.PlayState;
+import funkin.options.Options;
 import flixel.util.typeLimit.OneOfThree;
+import flixel.FlxG;
 
 class LuaPlayState {
 
-	public static function getPlayStateVariables():Map<String, Dynamic> {
+	public static function getPlayStateVariables(?script:Script):Map<String, Dynamic> {
 		return [
 			// PlayState property things 
 			"curBpm" 			=> Conductor.bpm,
@@ -18,11 +21,11 @@ class LuaPlayState {
 			"stepCrochet" 		=> Conductor.stepCrochet,
 			"songLength" 		=> FlxG.sound.music.length,
 			"songName" 			=> PlayState.SONG.meta.name,
-			"startedCountdown" 	=> PlayState.instance.startCountdown,
+			"startedCountdown" 	=> PlayState.instance.startedCountdown,
 			"stage" 			=> PlayState.SONG.stage,
 			"storyMode" 		=> PlayState.isStoryMode,
 			"difficulty" 		=> PlayState.difficulty,
-			"week" 				=> PlayState.storyWeek.name,
+			//"week" 			=> PlayState.storyWeek.name,
 			"seenCutscene" 		=> PlayState.seenCutscene,
 			"needVoices" 		=> PlayState.SONG.meta.needsVoices,
 			// Camera
@@ -50,26 +53,30 @@ class LuaPlayState {
 			"healthGainMulti" => 1.0,
 			"healthLossMulti" => 1.0,
 
-			"botPlay" 		=> PlayState.instance.playerStrums.cpu,
+			//"botPlay" 		=> PlayState.instance.playerStrums.cpu,
 			
 			// TODO: playerStrum/opponentStrum position
 
-			"boyfriendName" => PlayState.instance.boyfriend.curCharacter,
+			"boyfriendName" => PlayState.SONG.strumLines[1].characters[0],
 			"boyfriendX" 	=> PlayState.instance.stage.characterPoses['boyfriend'].x,
 			"boyfriendY" 	=> PlayState.instance.stage.characterPoses['boyfriend'].y,
-			"boyfriendRawX" => PlayState.instance.boyfriend.x,
-			"boyfriendRawY" => PlayState.instance.boyfriend.y,
-			"dadName" 		=> PlayState.instance.dad.curCharacter,
+			//"boyfriendRawX" => PlayState.instance.boyfriend.x,
+			//"boyfriendRawY" => PlayState.instance.boyfriend.y,
+			"dadName" 		=> PlayState.SONG.strumLines[0].characters[0],
 			"dadX" 			=> PlayState.instance.stage.characterPoses['dad'].x,
 			"dadY" 			=> PlayState.instance.stage.characterPoses['dad'].y,
-			"dadRawX" 		=> PlayState.instance.dad.x,
-			"dadRawY" 		=> PlayState.instance.dad.y,
-			"girlfriendName" => PlayState.instance.gf.curCharacter,
+			//"dadRawX" 		=> PlayState.instance.dad.x,
+			//"dadRawY" 		=> PlayState.instance.dad.y,
+			"girlfriendName" => PlayState.SONG.strumLines[2].characters[0],
 			"girlfriendX" 	=> PlayState.instance.stage.characterPoses['girlfriend'].x,
 			"girlfriendY" 	=> PlayState.instance.stage.characterPoses['girlfriend'].y,
-			"girlfriendRawX" => PlayState.instance.gf.x,
-			"girlfriendRawY" => PlayState.instance.gf.y,
+			//"girlfriendRawX" => PlayState.instance.gf.x,
+			//"girlfriendRawY" => PlayState.instance.gf.y
+		];
+	}
 
+	public static function getOptionsVariables(?script:Script):Map<String, Dynamic> {
+		return [
 			// Preferences
 			"downScroll" => Options.downscroll,
 			"framerate" => Options.framerate,

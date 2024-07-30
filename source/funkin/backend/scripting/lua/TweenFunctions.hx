@@ -14,6 +14,7 @@ class TweenFunctions {
 					case 'y': propertyToUse = {y: value};
 					case 'alpha' : propertyToUse = {alpha: value};
 					case 'angle' : propertyToUse = {angle: value};
+					default: return; // Don't try to do the tween
 				};
 				// cancels the current tween of the selected object
 				FlxTween.cancelTweensOf(objectToTween);

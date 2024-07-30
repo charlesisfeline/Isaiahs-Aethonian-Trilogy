@@ -2,11 +2,12 @@ package funkin.backend.scripting.lua;
 import flixel.tweens.FlxTween.FlxTweenType;
 #if ENABLE_LUA
 import llua.Lua;
+#end
 class LuaTools {
 	
 	public static final Event_Cancel:Dynamic = "##BIRDLUA_EVENTCANCEL";
 	public static final Event_Continue:Dynamic = "##BIRDLUA_EVENTCONTINUE";
-	
+	#if ENABLE_LUA
 	public static function getCurrentSystem():String {
 		return lime.system.System.platformName;
 	}
@@ -105,5 +106,5 @@ class LuaTools {
 			default: FlxTweenType.ONESHOT;
 		}
 	}
+	#end
 }
-#end

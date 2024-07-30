@@ -109,7 +109,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	 * All available script extensions
 	 */
 	public static var scriptExtensions:Array<String> = [
-		"hx", "hscript", "hsc", "hxs",
+		"hx", "hscript", "hsc", "hxs", "hxc",
 		"pack", // combined file
 		"lua" /** ACTUALLY NOT SUPPORTED, ONLY FOR THE MESSAGE, until now... **/
 	];
@@ -156,7 +156,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 					if(useLua)
 						new LuaScript(path);
 					else {
-						Logs.trace("Lua is not enabled. Use HScript instead.", ERROR);
+						Logs.trace("Lua not available. Use HScript instead.", ERROR);
 						new DummyScript(path);
 					}
 				default:

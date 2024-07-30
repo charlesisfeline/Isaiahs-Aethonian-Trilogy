@@ -1,5 +1,6 @@
 package funkin.game;
 
+import funkin.backend.scripting.lua.LuaTools;
 import funkin.editors.charter.CharterSelection;
 import flixel.FlxState;
 import funkin.editors.SaveWarning;
@@ -518,7 +519,10 @@ class PlayState extends MusicBeatState
 				rating = e;
 
 		var event = scripts.event("onRatingUpdate", EventManager.get(RatingUpdateEvent).recycle(rating, curRating));
-		if (!event.cancelled)
+		#if ENABLE_LUA
+		var luaEvent:Dynamic = scripts.luaEvent("onRatingUpdate", [rating.rating, rating.percent]); //Lua accepts only primitive types
+		#end
+		if (!event.cancelled #if ENABLE_LUA || luaEvent != LuaTools.Event_Cancel #end)
 			curRating = event.rating;
 	}
 
@@ -597,7 +601,7 @@ class PlayState extends MusicBeatState
 							if (folder == 'data/charts/')
 								Logs.trace('data/charts/ is deprecrated and will be removed in the future. Please move script $file to songs/', WARNING, DARKYELLOW);
 
-							addScript(file);
+							addScript(file, #if ENABLE_LUA true #else false #end); // true to use Lua
 						}
 					}
 
@@ -607,7 +611,7 @@ class PlayState extends MusicBeatState
 					for (file in Paths.getFolderContent('data/events/', true, fromMods ? MODS : BOTH)) {
 						var fileName:String = Path.withoutExtension(Path.withoutDirectory(file));
 						if (EventsData.eventsList.contains(fileName) && songEvents.contains(fileName)) {
-							addScript(file);
+							addScript(file, #if ENABLE_LUA true #else false #end);
 						}
 					}
 			}
@@ -686,6 +690,7 @@ class PlayState extends MusicBeatState
 		scripts.set("SONG", SONG);
 		scripts.load();
 		scripts.call("create");
+		scripts.luaCall("create");
 		#end
 
 		// HUD INITIALIZATION & CAMERA INITIALIZATION
@@ -794,6 +799,7 @@ class PlayState extends MusicBeatState
 		__updateNote_event = EventManager.get(NoteUpdateEvent);
 
 		scripts.call("postCreate");
+		scripts.luaCall("postCreate");
 	}
 
 	/**
@@ -855,7 +861,8 @@ class PlayState extends MusicBeatState
 			_startCountdownCalled = true;
 			inCutscene = false;
 
-			if (scripts.event("onStartCountdown", new CancellableEvent()).cancelled) return;
+			if (scripts.event("onStartCountdown", new CancellableEvent()).cancelled || scripts.luaEvent("onStartCountdown", []) == LuaTools.Event_Cancel ) 
+				return;
 		}
 
 		startedCountdown = true;
@@ -869,6 +876,7 @@ class PlayState extends MusicBeatState
 			countdown(swagCounter++);
 		}, introLength);
 		scripts.call("onPostStartCountdown");
+		scripts.luaCall("onPostStartCountdown");
 	}
 
 	/**
@@ -882,11 +890,17 @@ class PlayState extends MusicBeatState
 			introSprites[swagCounter],
 			0.6, true, null, null, null));
 
+		var luaEvent:Dynamic = scripts.luaEvent("onCountdown", [
+			swagCounter,  
+			introSounds[swagCounter], 
+			introSprites[swagCounter],
+			0.6, true]);
+
 		var sprite:FlxSprite = null;
 		var sound:FlxSound = null;
 		var tween:FlxTween = null;
 
-		if (!event.cancelled) {
+		if (!event.cancelled || luaEvent != LuaTools.Event_Cancel) {
 			if (event.spritePath != null) {
 				var spr = event.spritePath;
 				if (!Assets.exists(spr)) spr = Paths.image('$spr');
@@ -919,11 +933,17 @@ class PlayState extends MusicBeatState
 		event.cancelled = false;
 
 		scripts.event("onPostCountdown", event);
+		scripts.luaEvent("onPostCountdown", [
+			swagCounter,  
+			introSounds[swagCounter], 
+			introSprites[swagCounter],
+			0.6, true]);
 	}
 
 	@:dox(hide) function startSong():Void
 	{
 		scripts.call("onSongStart");
+		scripts.luaCall("onSongStart");
 		startingSong = false;
 
 		inst.onComplete = endSong;
@@ -951,10 +971,13 @@ class PlayState extends MusicBeatState
 		updateDiscordPresence();
 
 		scripts.call("onStartSong");
+		scripts.luaCall("onStartSong");
+
 	}
 
 	public override function destroy() {
 		scripts.call("destroy");
+		scripts.luaCall("destroy");
 		for(g in __cachedGraphics)
 			g.useCount--;
 		@:privateAccess
@@ -1089,6 +1112,7 @@ class PlayState extends MusicBeatState
 			vocals.resume();
 		}
 		scripts.call("onFocus");
+		scripts.luaCall("onFocus");
 		updateDiscordPresence();
 		super.onFocus();
 	}
@@ -1102,6 +1126,7 @@ class PlayState extends MusicBeatState
 			vocals.pause();
 		}
 		scripts.call("onFocusLost");
+		scripts.luaCall("onFocusLost");
 		updateDiscordPresence();
 		super.onFocusLost();
 	}
@@ -1121,6 +1146,7 @@ class PlayState extends MusicBeatState
 		}
 		vocals.play();
 		scripts.call("onVocalsResync");
+		scripts.luaCall("onVocalsResync");
 	}
 
 	/**
@@ -1128,7 +1154,9 @@ class PlayState extends MusicBeatState
 	 */
 	public function pauseGame() {
 		var e = scripts.event("onGamePause", new CancellableEvent());
-		if (e.cancelled) return;
+		var le = scripts.luaEvent("onGamePause", []);
+
+		if (e.cancelled || le == LuaTools.Event_Cancel) return;
 
 		persistentUpdate = false;
 		persistentDraw = true;
@@ -1225,10 +1253,12 @@ class PlayState extends MusicBeatState
 	override public function update(elapsed:Float)
 	{
 		scripts.call("update", [elapsed]);
+		scripts.luaCall("update", [elapsed]);
 
 		if (inCutscene) {
 			super.update(elapsed);
 			scripts.call("postUpdate", [elapsed]);
+			scripts.luaCall("postUpdate", [elapsed]);
 			return;
 		}
 
@@ -1295,7 +1325,8 @@ class PlayState extends MusicBeatState
 				pos.y /= r;
 
 				var event = scripts.event("onCameraMove", EventManager.get(CamMoveEvent).recycle(pos, strumLines.members[curCameraTarget], r));
-				if (!event.cancelled)
+				var luaEvent:Dynamic = scripts.luaEvent("onCameraMove", [r]);
+				if (!event.cancelled || luaEvent != LuaTools.Event_Cancel)
 					camFollow.setPosition(pos.x, pos.y);
 			}
 			pos.put();
@@ -1325,8 +1356,10 @@ class PlayState extends MusicBeatState
 		#end
 
 		super.update(elapsed);
-
+		scripts.luaSet('curStepFloat', this.curStepFloat);
+		scripts.luaSet('curBeatFloat', this.curBeatFloat);
 		scripts.call("postUpdate", [elapsed]);
+		scripts.luaCall("postUpdate", [elapsed]);
 	}
 
 	override function draw() {
@@ -1343,10 +1376,18 @@ class PlayState extends MusicBeatState
 		if (event.params == null) return;
 
 		if (scripts.event("onEvent", EventManager.get(EventGameEvent).recycle(event)).cancelled) return;
+		if (scripts.luaEvent("onEvent", [
+				event.name, 
+				(event.params[0] != null) ? event.params[0] : "",
+				(event.params[1] != null) ? event.params[1] : "",
+				(event.params[2] != null) ? event.params[2] : ""
+			]) == LuaTools.Event_Cancel) return;
 
 		switch(event.name) {
 			case "HScript Call":
 				scripts.call(event.params[0], event.params[1].split(','));
+			case "Lua Call":
+				scripts.luaCall(event.params[0], event.params[1].split(','));
 			case "Camera Movement":
 				curCameraTarget = event.params[0];
 			case "Add Camera Zoom":
@@ -1412,8 +1453,15 @@ class PlayState extends MusicBeatState
 			lossSFX.getDefault(this.lossSFX),
 			retrySFX.getDefault(this.retrySFX)
 		));
+		var luaEvent:Dynamic = scripts.luaEvent("onGameOver", [
+			event.character.curCharacter, 
+			event.deathCharID, 
+			event.lossSFX, 
+			event.gameOverSong, 
+			event.retrySFX, 
+			event.isPlayer]);
 
-		if (event.cancelled) return;
+		if (event.cancelled || luaEvent == LuaTools.Event_Cancel) return;
 
 		if (character != null)
 			character.stunned = true;
@@ -1430,6 +1478,7 @@ class PlayState extends MusicBeatState
 		openSubState(new GameOverSubstate(event.x, event.y, event.deathCharID, event.isPlayer, event.gameOverSong, event.lossSFX, event.retrySFX));
 
 		scripts.event("onPostGameOver", event);
+		scripts.luaEvent("onPostGameOver", [event.character.curCharacter, event.deathCharID, event.lossSFX, event.gameOverSong, event.retrySFX, event.isPlayer]);
 	}
 
 	/**
@@ -1438,6 +1487,7 @@ class PlayState extends MusicBeatState
 	public function endSong():Void
 	{
 		scripts.call("onSongEnd");
+		scripts.luaCall("onSongEnd");
 		canPause = false;
 		inst.volume = 0;
 		vocals.volume = 0;
@@ -1560,7 +1610,8 @@ class PlayState extends MusicBeatState
 
 		var event:NoteMissEvent = scripts.event("onPlayerMiss", EventManager.get(NoteMissEvent).recycle(note, -10, 1, muteVocalsOnMiss, note != null ? -0.0475 : -0.04, Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2), note == null, combo > 5, "sad", true, true, "miss", strumLines.members[playerID].characters, playerID, note != null ? note.noteType : null, directionID, 0));
 		strumLine.onMiss.dispatch(event);
-		if (event.cancelled) return;
+		var luaEvent:Dynamic = scripts.luaEvent("onPlayerMiss", [event.note.strumID, event.score, event.misses, event.muteVocals, event.healthGain]);
+		if (event.cancelled || luaEvent == LuaTools.Event_Cancel) return;
 
 		if (strumLine != null) strumLine.addHealth(event.healthGain);
 		if (gf != null && event.gfSad && gf.hasAnimation(event.gfSadAnim))
@@ -1641,14 +1692,20 @@ class PlayState extends MusicBeatState
 		}
 
 		var event:NoteHitEvent;
-		if (strumLine != null && !strumLine.cpu)
+		var luaEvent:Dynamic;
+		if (strumLine != null && !strumLine.cpu) {
 			event = scripts.event("onPlayerHit", EventManager.get(NoteHitEvent).recycle(false, !note.isSustainNote, !note.isSustainNote, note, strumLine.characters, true, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, score, note.isSustainNote ? null : accuracy, 0.023, daRating, Options.splashesEnabled && !note.isSustainNote && daRating == "sick"));
-		else
+			luaEvent = scripts.luaEvent("onPlayerHit", [event.direction, event.rating, event.countAsCombo, event.misses, event.noteType]);
+		}
+		else {
 			event = scripts.event("onDadHit", EventManager.get(NoteHitEvent).recycle(false, false, false, note, strumLine.characters, false, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, 0, null, 0, daRating, false));
+			luaEvent = scripts.luaEvent("onDadHit", [event.direction, event.rating, event.countAsCombo, event.misses, event.noteType]);
+		}
 		strumLine.onHit.dispatch(event);
 		scripts.event("onNoteHit", event);
+		scripts.luaEvent("onNoteHit", [event.character.curCharacter, event.direction, event.rating, event.countAsCombo, event.misses, event.noteType]);
 
-		if (!event.cancelled) {
+		if (!event.cancelled || luaEvent != LuaTools.Event_Cancel) {
 			if (!note.isSustainNote) {
 				if (event.countScore) songScore += event.score;
 				if (event.accuracy != null) {
@@ -1780,14 +1837,18 @@ class PlayState extends MusicBeatState
 	override function stepHit(curStep:Int)
 	{
 		super.stepHit(curStep);
+		scripts.luaSet('curStep', curStep);
 		scripts.call("stepHit", [curStep]);
+		scripts.luaCall("stepHit", [curStep]);
 	}
 
 	@:dox(hide)
 	override function measureHit(curMeasure:Int)
 	{
 		super.measureHit(curMeasure);
+		scripts.luaSet('curMeasure', curMeasure);
 		scripts.call("measureHit", [curMeasure]);
+		scripts.luaCall("measureHit", [curMeasure]);
 	}
 
 	@:dox(hide)
@@ -1810,14 +1871,15 @@ class PlayState extends MusicBeatState
 			iconP1.updateHitbox();
 			iconP2.updateHitbox();
 		}
-
+		scripts.luaSet('curBeat', curBeat);
 		scripts.call("beatHit", [curBeat]);
+		scripts.luaCall("beatHit", [curBeat]);
 	}
 
-	public function addScript(file:String) {
+	public function addScript(file:String, ?useLua:Bool = false) {
 		var ext = Path.extension(file).toLowerCase();
 		if (Script.scriptExtensions.contains(ext))
-			scripts.add(Script.create(file));
+			scripts.add(Script.create(file, useLua));
 	}
 
 	// GETTERS & SETTERS

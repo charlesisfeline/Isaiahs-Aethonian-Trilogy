@@ -1,6 +1,9 @@
 package funkin.backend.scripting;
 
+import funkin.backend.scripting.lua.HScriptFunctions;
+import funkin.backend.scripting.lua.ReflectionFunctions;
 #if ENABLE_LUA
+import funkin.backend.scripting.lua.TweenFunctions;
 import haxe.io.Path;
 import funkin.backend.scripting.lua.LuaPlayState;
 import funkin.backend.scripting.lua.LuaTools;
@@ -25,11 +28,15 @@ class LuaScript extends Script{
 	public var luaPath:String = '';
     public var callbacks:Map<String, Dynamic> = [];
 
-	public static function getDefaultVariables(?script:Script):Map<String, Dynamic> {
+	var game:MusicBeatState;
+
+	public static function getPlayStateVariables(?script:Script):Map<String, Dynamic> {
 		return LuaPlayState.getPlayStateVariables();
 	}
 
 	public function new(path:String) {
+		game = PlayState.instance;
+
 		super(path, true);
 		rawPath = path;
 		path = Paths.getFilenameFromLibFile(path);
@@ -38,11 +45,29 @@ class LuaScript extends Script{
 		extension = Path.extension(path);
 		this.path = path;
 		onCreate(path);
-		for(k=>e in getDefaultVariables(this)) {
+		if(game != null) {
+			for(k=>e in LuaPlayState.getPlayStateVariables(this)) {
+				set(k, e);
+			}
+			for(k=>e in LuaPlayState.getPlayStateFunctions()) {
+				addCallback(k, e);
+			}
+			for(k=>e in ReflectionFunctions.getReflectFunctions(game, this)) {
+				addCallback(k, e);
+			}
+			for(k=>e in HScriptFunctions.getHScriptFunctions(this)) {
+				addCallback(k, e);
+			}
+		}
+		for(k=>e in LuaPlayState.getOptionsVariables(this)) {
 			set(k, e);
 		}
-		set("disableScript", () -> {
-			active = false;
+		for(k=>e in TweenFunctions.getTweenFunctions(this)) {
+			addCallback(k, e);
+		}
+		
+		addCallback("disableScript", function() {
+			close();
 		});
 	}
 
@@ -53,11 +78,11 @@ class LuaScript extends Script{
 
 		this.luaPath = path.trim();
 		//For now, it only executes on PlayState
-		var game = PlayState.instance;
 		//game.stateScripts.scripts.push(this);
 		
         set('Event_Cancel', LuaTools.Event_Cancel);
         set('Event_Continue', LuaTools.Event_Continue);
+		set('chartingMode', false);
 
 		#if GLOBAL_SCRIPT
 		funkin.backend.scripting.GlobalScript.call("onScriptCreated", [null, "luascript"]);
@@ -66,7 +91,7 @@ class LuaScript extends Script{
 
     public override function onLoad() {
         if (state.dostring(Assets.getText(path)) != 0)
-            return;
+            this.error('${state.tostring(-1)}');
     }
 
     public override function onCall(funcName:String, args:Array<Dynamic>):Dynamic {
@@ -120,11 +145,7 @@ class LuaScript extends Script{
 	}
 
 	public override function destroy() {
-		if(state == null) {
-			return;
-		}
-		Lua.close(state);
-		state = null;
+		close();
 	}
 
     public override function reload() {
@@ -132,11 +153,11 @@ class LuaScript extends Script{
     }
 
     public override function setParent(variable:Dynamic) {
-
+		Logs.trace('Set-Parent is currently not available on Lua.', WARNING);
 	}
 
 	public override function setPublicMap(map:Map<String, Dynamic>) {
-		super.setPublicMap(map);
+		Logs.trace('Set-Public-Map is currently not available on Lua.', WARNING);
 	}
 
 	public function getErrorMessage(status:Int):String {
@@ -159,7 +180,22 @@ class LuaScript extends Script{
 
 	public override function loadFromString(code:String):Script {
 		// TODO: Lua execution from String
+		if(this.state.dostring(code) != 0) {
+			this.error('${state.tostring(-1)}');
+			return null;
+		}
+
 		return this;
+	}
+
+	public function close()
+	{
+		if(state == null) {
+			return;
+		}
+		this.active = false;
+		Lua.close(state);
+		state = null;
 	}
 }
 #end

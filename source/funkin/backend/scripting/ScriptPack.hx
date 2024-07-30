@@ -53,10 +53,31 @@ class ScriptPack extends Script {
 	}
 
 	public override function call(func:String, ?parameters:Array<Dynamic>):Dynamic {
-		for(e in scripts)
-			if(e.active)
+		for(e in scripts) {
+			if(e is LuaScript) continue;
+			if(e.active) 
 				e.call(func, parameters);
+		}
 		return null;
+	}
+
+	public function luaCall(func:String, ?parameters:Array<Dynamic>):Dynamic {
+		var rv:Dynamic = LuaTools.Event_Continue;
+		#if ENABLE_LUA
+		for(e in scripts) {
+			if(!(e is LuaScript)) continue;
+			if(e.active) {
+				var value:Dynamic = e.call(func, parameters);
+				if(value == LuaTools.Event_Cancel) {
+					rv = value;
+					return rv;
+				}
+				if(value != null)
+					rv = value;
+			}	
+		}
+		#end
+		return rv;
 	}
 
 	/**
@@ -75,17 +96,17 @@ class ScriptPack extends Script {
 		return event;
 	}
 
-	public inline function luaEvent(func:String, value:Dynamic):Dynamic {
+	public inline function luaEvent(func:String, values:Array<Dynamic>):Dynamic {
 		
-		var event:Dynamic = null;
-
+		var event:Dynamic = LuaTools.Event_Continue;
+		#if ENABLE_LUA
 		for(e in scripts) {
 			if(!(e is LuaScript)) continue;
-
-			event = e.call(func, [value]);
-			if(event == LuaTools.Event_Cancel) break;
+			event = e.call(func, values);
+			if(event == LuaTools.Event_Cancel) 
+				break;
 		}
-
+		#end
 		return event;
 	}
 
@@ -102,7 +123,17 @@ class ScriptPack extends Script {
 	}
 
 	public override function set(val:String, value:Dynamic) {
-		for(e in scripts) e.set(val, value);
+		for(e in scripts){
+			if(e is LuaScript) continue;
+			e.set(val, value);
+		} 
+	}
+
+	public function luaSet(val:String, value:Dynamic) {
+		for(e in scripts) {
+			if(!(e is LuaScript)) return;
+			e.set(val, value);
+		}
 	}
 
 	public override function setParent(parent:Dynamic) {
@@ -134,7 +165,25 @@ class ScriptPack extends Script {
 	private function __configureNewScript(script:Script) {
 		if (parent != null) script.setParent(parent);
 		script.setPublicMap(publicVariables);
-		for(k=>e in additionalDefaultVariables) script.set(k, e);
+		for(k=>e in additionalDefaultVariables) {
+			if(script is LuaScript)
+				switch(k) {
+					case "importScript":
+						cast(script, LuaScript).addCallback(k, function(path:String) {
+							var script = Script.create(Paths.script(path));
+							if (script is DummyScript)
+							{
+								Logs.trace('Script at ${path} does not exist.', ERROR);
+								return;
+							}
+							add(script);
+							script.load();
+							return;
+						});
+				}
+			else
+				script.set(k, e);
+		}
 	}
 
 	override public function toString():String {
