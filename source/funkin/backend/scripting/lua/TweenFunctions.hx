@@ -1,6 +1,7 @@
 package funkin.backend.scripting.lua;
 #if ENABLE_LUA
 import flixel.tweens.*;
+import flixel.tweens.FlxTween.FlxTweenType;
 
 class TweenFunctions {
 	
@@ -18,8 +19,10 @@ class TweenFunctions {
 					default: return; // Don't try to do the tween
 				};
 				// cancels the current tween of the selected object
-				if(PlayState.instance.luaObjects["TWEEN"].exists(tweenName))
+				if(PlayState.instance.luaObjects["TWEEN"].exists(tweenName)){
 					cast(PlayState.instance.luaObjects["TWEEN"].get(tweenName), FlxTween).cancel();
+					PlayState.instance.luaObjects["TWEEN"].remove(tweenName); // Redundant since Map.set() overwrite the value of the same key
+				}
 
 				PlayState.instance.luaObjects["TWEEN"].set(tweenName, FlxTween.tween(objectToTween, propertyToUse, duration, 
 				{
@@ -27,10 +30,19 @@ class TweenFunctions {
 					type: LuaTools.getTweenType(type), 
 					startDelay: timeDelayed,
 					onComplete: (_) -> {
-						PlayState.instance.luaObjects["TWEEN"].remove(tweenName);
+						// Prevents removing itself on "Loop" tween type (LOOPING, PINGPONG or PERSIST)
+						if(_.type == FlxTweenType.ONESHOT || _.type == FlxTweenType.BACKWARD)
+							PlayState.instance.luaObjects["TWEEN"].remove(tweenName);
 						script.call('onTweenFinished', [tweenName, object]);
 					}
 				}));
+			},
+			"cancelTween" => function(tweenName:String) {
+				// cancels the current specified tween and remove it from the map
+				if(PlayState.instance.luaObjects["TWEEN"].exists(tweenName)) {
+					cast(PlayState.instance.luaObjects["TWEEN"].get(tweenName), FlxTween).cancel();
+					PlayState.instance.luaObjects["TWEEN"].remove(tweenName);
+				}
 			}
 		];
 	}
