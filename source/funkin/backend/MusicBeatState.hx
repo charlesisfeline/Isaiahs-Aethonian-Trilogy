@@ -94,7 +94,17 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 	public var scriptsAllowed:Bool = true;
 
 	public var luaScriptsAllowed:Bool = false;
-
+	#if ENABLE_LUA
+	/**
+	 * Map containing all the objects created from Lua
+	 */
+	public var luaObjects(default, never):Map<String, Map<String, Dynamic>> = [
+		"SPRITE" => new Map<String, Dynamic>(),
+		"TEXT" => new Map<String, Dynamic>(),
+		"TWEEN" => new Map<String, Dynamic>(),
+		"SHADER" => new Map<String, Dynamic>()
+	];
+	#end
 	public var scriptName:String = null;
 
 	public static var skipTransOut:Bool = false;

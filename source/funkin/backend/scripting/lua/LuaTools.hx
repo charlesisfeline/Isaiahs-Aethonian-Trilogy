@@ -13,7 +13,7 @@ class LuaTools {
 	}
 
 	public static function getCamera(camera:String):FlxCamera {
-		return switch(camera) {
+		return switch(camera.trim().toLowerCase()) {
 			case "camgame" | "game": PlayState.instance.camGame;
 			case "camhud" | "hud": PlayState.instance.camHUD;
 			default: FlxG.cameras.list[FlxG.cameras.list.length - 1];

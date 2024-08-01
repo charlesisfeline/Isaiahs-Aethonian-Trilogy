@@ -4,11 +4,13 @@ class HScriptFunctions {
 	public static function getHScriptFunctions(?script:Script):Map<String, Dynamic> {
 		#if ENABLE_LUA
 		return [
-			"executeScript"	=> function(code:String, ?funcName:String = null, ?funcArgs:Array<Dynamic> = null) {
-				var script = Script.fromString(code, script.path, false);
-				script.loadFromString(code);
-				PlayState.instance.scripts.add(script);
-				script.load();
+			"executeScript"	=> function(code:String) {
+				var _script = Script.fromString(code, '${haxe.io.Path.withoutExtension(script.path)}.hx', false);
+				PlayState.instance.scripts.add(_script);
+			},
+			"stopScript" => function() {
+				var _script = PlayState.instance.scripts.getByPath('${haxe.io.Path.withoutExtension(script.path)}.hx');
+				_script.active = false;
 			}
 		];
 		#else

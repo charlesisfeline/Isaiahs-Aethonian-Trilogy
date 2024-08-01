@@ -33,7 +33,7 @@ class TweenFunctions {
 						// Prevents removing itself on "Loop" tween type (LOOPING, PINGPONG or PERSIST)
 						if(_.type == FlxTweenType.ONESHOT || _.type == FlxTweenType.BACKWARD)
 							PlayState.instance.luaObjects["TWEEN"].remove(tweenName);
-						script.call('onTweenFinished', [tweenName, object]);
+						script.call('onTweenFinished', [tweenName]);
 					}
 				}));
 			},

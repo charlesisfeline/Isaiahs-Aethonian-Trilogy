@@ -85,17 +85,6 @@ class PlayState extends MusicBeatState
 	 * Script Pack of all the scripts being ran.
 	 */
 	public var scripts:ScriptPack;
-	#if ENABLE_LUA
-	/**
-	 * Map containing all the objects created from Lua
-	 */
-	public var luaObjects(default, never):Map<String, Map<String, Dynamic>> = [
-		"SPRITE" => new Map<String, Dynamic>(),
-		"TEXT" => new Map<String, Dynamic>(),
-		"TWEEN" => new Map<String, Dynamic>(),
-		"SHADER" => new Map<String, Dynamic>()
-	];
-	#end
 	/**
 	 * Array of all the players in the stage.
 	 */

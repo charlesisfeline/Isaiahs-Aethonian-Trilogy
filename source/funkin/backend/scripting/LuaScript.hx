@@ -28,8 +28,8 @@ class LuaScript extends Script{
     public var state:State = null;
 	public var luaPath:String = '';
     public var callbacks:Map<String, Dynamic> = new Map<String, Dynamic>();
-
-	var game:MusicBeatState;
+	// For now, it run on PlayState
+	var game:PlayState;
 
 	public static var curLuaScript:LuaScript = null;
 
@@ -176,11 +176,11 @@ class LuaScript extends Script{
     }
 
     public override function setParent(variable:Dynamic) {
-		Logs.trace('Set-Parent is currently not available on Lua.', WARNING);
+		//Logs.trace('Set-Parent is currently not available on Lua.', WARNING);
 	}
 
 	public override function setPublicMap(map:Map<String, Dynamic>) {
-		Logs.trace('Set-Public-Map is currently not available on Lua.', WARNING);
+		//Logs.trace('Set-Public-Map is currently not available on Lua.', WARNING);
 	}
 
 	public function getErrorMessage(status:Int):String {
@@ -202,7 +202,6 @@ class LuaScript extends Script{
 	}
 
 	public override function loadFromString(code:String):Script {
-		// TODO: Lua execution from String
 		if(this.state.dostring(code) != 0) {
 			this.error('${state.tostring(-1)}');
 			return null;

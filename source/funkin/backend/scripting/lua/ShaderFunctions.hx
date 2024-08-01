@@ -41,44 +41,53 @@ class ShaderFunctions {
 				}
 			},
 			"removeShader" => function(object:String, ?shader:String) {
+				if(!Options.gameplayShaders) return;
+
 				var object:Dynamic = LuaTools.getObject(object);
 
-				if(object != null) {
-					if(object is FlxSprite) {
+				if (object != null && (shader != null && shader.trim() != ""))
+				{
+					if (object is FlxSprite)
+					{
 						cast(object, FlxSprite).shader = null;
-						PlayState.instance.luaObjects["SHADER"].set(shader, null); //Sets the shader null
-						PlayState.instance.luaObjects["SHADER"].remove(shader); //Removes the shader from the map
+						PlayState.instance.luaObjects["SHADER"].set(shader, null); // Sets the shader null
+						PlayState.instance.luaObjects["SHADER"].remove(shader); // Removes the shader from the map
 						return;
 					}
-					else if(object is FlxCamera) {
-						if(shader != null && shader.trim() != "") {
-							var cShader:CustomShader = PlayState.instance.luaObjects["SHADER"].get(shader);
-							cast(object, FlxCamera).removeShader(cShader);
-							PlayState.instance.luaObjects["SHADER"].set(shader, null); //Sets the shader null
-							PlayState.instance.luaObjects["SHADER"].remove(shader); //Removes the shader from the map
-						}
+					else if (object is FlxCamera)
+					{
+						var cShader:CustomShader = PlayState.instance.luaObjects["SHADER"].get(shader);
+						if (cShader == null)
+							return;
+						cast(object, FlxCamera).removeShader(cShader);
+						PlayState.instance.luaObjects["SHADER"].set(shader, null); // Sets the shader null
+						PlayState.instance.luaObjects["SHADER"].remove(shader); // Removes the shader from the map
 						return;
 					}
 				}
 			},
 			"getShaderField" => function(shader:String, field:String) {
-				if(PlayState.instance.luaObjects["SHADER"].exists(shader)) {
-					var cShader:CustomShader = PlayState.instance.luaObjects["SHADER"].get(shader);
+				if(!Options.gameplayShaders) return null;
+
+				var cShader:CustomShader = PlayState.instance.luaObjects["SHADER"].get(shader);
+				if (cShader != null)
 					return cShader.hget(field);
-				}
-				else {
+				else
+				{
 					Logs.trace('Shader ${shader} not found', ERROR);
 					return null;
 				}
 			},
 			"setShaderField" => function(shader:String, field:String, value:Dynamic) {
-				if(PlayState.instance.luaObjects["SHADER"].exists(shader)) {
-					var cShader:CustomShader = PlayState.instance.luaObjects["SHADER"].get(shader);
+				if(!Options.gameplayShaders) return;
+
+				var cShader:CustomShader = PlayState.instance.luaObjects["SHADER"].get(shader);
+				if (cShader != null)
 					cShader.hset(field, value);
-					return;
-				}
-				else {
+				else
+				{
 					Logs.trace('Shader ${shader} not found', ERROR);
+					return;
 				}
 			}
 		];

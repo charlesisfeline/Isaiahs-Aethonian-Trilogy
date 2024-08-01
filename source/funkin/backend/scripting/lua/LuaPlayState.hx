@@ -19,7 +19,7 @@ class LuaPlayState {
 			"scrollSpeed" 		=> PlayState.SONG.scrollSpeed,
 			"crochet" 			=> Conductor.crochet,
 			"stepCrochet" 		=> Conductor.stepCrochet,
-			"songLength" 		=> (!PlayState.chartingMode) ? FlxG.sound.music.length : 0.0,
+			//"songLength" 		=> (!PlayState.chartingMode) ? FlxG.sound.music.length : 0.0,
 			"songName" 			=> PlayState.SONG.meta.name,
 			"startedCountdown" 	=> PlayState.instance.startedCountdown,
 			"stage" 			=> PlayState.SONG.stage,
@@ -106,20 +106,49 @@ class LuaPlayState {
 			},
 			"createSprite" => function(name:String, ?imagePath:String = null, ?x:Float = 0, ?y:Float = 0)
 			{
-				var theSprite:FlxSprite = new FlxSprite(x, y);
+				var theSprite:FunkinSprite = new FunkinSprite(x, y);
 				if(imagePath != null && imagePath.length > 0)
 					theSprite.loadGraphic(Paths.image(imagePath));
 				PlayState.instance.luaObjects["SPRITE"].set(name, theSprite);
 			},
 			"addSprite" => function(name:String, ?camera:String = "camGame") {
-				var sprite:FlxSprite = null;
+				var sprite:FunkinSprite = null;
 				if(PlayState.instance.luaObjects["SPRITE"].exists(name))
 					sprite = PlayState.instance.luaObjects["SPRITE"].get(name);
 
-				if(sprite == null) return;
-				
-				PlayState.instance.add(sprite);
-				sprite.cameras = [LuaTools.getCamera(camera.toLowerCase())];
+				if(sprite != null) {
+					PlayState.instance.add(sprite);
+					sprite.cameras = [LuaTools.getCamera(camera)];
+				}
+			},
+			"setSpriteCamera" => function(name:String, ?camera:String = 'camGame') {
+				var sprite:FunkinSprite = null;
+				if(PlayState.instance.luaObjects["SPRITE"].exists(name))
+					sprite = PlayState.instance.luaObjects["SPRITE"].get(name);
+
+				if(sprite != null) {
+					sprite.cameras = [LuaTools.getCamera(camera)];
+				}
+			},
+			"setSpriteScale" => function(name:String, ?scaleX:Float = 1, ?scaleY:Float = 1) {
+				var sprite:FunkinSprite = null;
+				if(PlayState.instance.luaObjects["SPRITE"].exists(name))
+					sprite = PlayState.instance.luaObjects["SPRITE"].get(name);
+
+				if(sprite != null) {
+					sprite.scale.set(scaleX, scaleY);
+					sprite.updateHitbox();
+				}
+			},
+			"setSpriteSize" => function(name:String, ?width:Int = 0, ?height:Int = 0) {
+				var sprite:FunkinSprite = null;
+				if(PlayState.instance.luaObjects["SPRITE"].exists(name))
+					sprite = PlayState.instance.luaObjects["SPRITE"].get(name);
+
+				if(sprite != null) {
+					sprite.setGraphicSize(width, height);
+					sprite.updateHitbox();
+				}
 			}
 		];
 	}
