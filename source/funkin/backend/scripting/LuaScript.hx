@@ -1,12 +1,7 @@
 package funkin.backend.scripting;
 #if ENABLE_LUA
 import flixel.FlxState;
-import funkin.backend.scripting.lua.ShaderFunctions;
-import funkin.backend.scripting.lua.HScriptFunctions;
-import funkin.backend.scripting.lua.ReflectionFunctions;
-import funkin.backend.scripting.lua.TweenFunctions;
-import funkin.backend.scripting.lua.LuaPlayState;
-import funkin.backend.scripting.lua.LuaTools;
+import funkin.backend.scripting.lua.*;
 
 import haxe.DynamicAccess;
 import haxe.io.Path;
@@ -33,10 +28,6 @@ class LuaScript extends Script{
 
 	public static var curLuaScript:LuaScript = null;
 
-	public static function getPlayStateVariables(?script:Script):Map<String, Dynamic> {
-		return LuaPlayState.getPlayStateVariables();
-	}
-
 	public function new(path:String) {
 		game = PlayState.instance;
 
@@ -52,37 +43,11 @@ class LuaScript extends Script{
 			for(k=>e in LuaPlayState.getPlayStateVariables(this)) {
 				set(k, e);
 			}
-			for(k=>e in LuaPlayState.getPlayStateFunctions(this)) {
-				addCallback(k, e);
-			}
-			for(k=>e in TweenFunctions.getTweenFunctions(this)) {
-				addCallback(k, e);
-			}
-			for(k=>e in ReflectionFunctions.getReflectFunctions(game, this)) {
-				addCallback(k, e);
-			}
-			for(k=>e in HScriptFunctions.getHScriptFunctions(this)) {
-				switch(k) {
-					case "executeScript":
-						addCallback(k, e, true);
-					default:
-						addCallback(k, e);
-				}
-				
-			}
-			for(k=>e in ShaderFunctions.getShaderFunctions(this)) {
-				switch(k) {
-					case "initShader" | "addShader": 
-						addCallback(k, e, true);
-					default:
-						addCallback(k, e);
-				}
-			}
+			setCallbacks(); // Sets all the callbacks
 		}
-		for(k=>e in LuaPlayState.getOptionsVariables(this)) {
+		for(k=>e in OptionsVariables.getOptionsVariables(this)) {
 			set(k, e);
 		}
-		
 		addCallback("disableScript", function() {
 			close();
 		}, true);
@@ -159,6 +124,38 @@ class LuaScript extends Script{
 		Convert.toLua(state, value);
 		Lua.setglobal(state, variable);
     }
+
+	function setCallbacks() {
+		for(k=>e in LuaPlayState.getPlayStateFunctions(this)) {
+			addCallback(k, e);
+		}
+		for(k=>e in SpriteFunctions.getSpriteFunctions(this)) {
+			addCallback(k, e);
+		}
+		for(k=>e in TweenFunctions.getTweenFunctions(this)) {
+			addCallback(k, e);
+		}
+		for(k=>e in ReflectionFunctions.getReflectFunctions(game, this)) {
+			addCallback(k, e);
+		}
+		for(k=>e in HScriptFunctions.getHScriptFunctions(this)) {
+			switch(k) {
+				case "executeScript":
+					addCallback(k, e, true);
+				default:
+					addCallback(k, e);
+			}
+			
+		}
+		for(k=>e in ShaderFunctions.getShaderFunctions(this)) {
+			switch(k) {
+				case "initShader" | "addShader": 
+					addCallback(k, e, true);
+				default:
+					addCallback(k, e);
+			}
+		}
+	}
 
 	public function addCallback(funcName:String, func:Dynamic, ?isLocal:Bool = false) {
 		if(isLocal)

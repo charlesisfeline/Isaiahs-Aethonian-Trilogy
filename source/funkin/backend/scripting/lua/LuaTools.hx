@@ -32,6 +32,46 @@ class LuaTools {
 		return "unknown";
 	}
 
+	public static function getValueFromVariable(obj:Dynamic, variable:String):Dynamic {
+		var fields = variable.trim().split('.');
+		var value:Dynamic = null;
+
+		if (fields.length > 1)
+		{
+			var _var:Dynamic = Reflect.getProperty(obj, fields[0]);
+			for (i in 1...fields.length)
+			{
+				_var = Reflect.getProperty(_var, fields[i]);
+			}
+			value = _var;
+		}
+		else
+		{
+			value = Reflect.getProperty(obj, fields[0]);
+		}
+		return value;
+	}
+
+	public static function setValueToVariable(obj:Dynamic, variable:String, value:Dynamic):Dynamic {
+		var fields = variable.trim().split('.');
+
+		if (fields.length > 1)
+		{
+			var _var:Dynamic = Reflect.getProperty(obj, fields[0]);
+			for (i in 1...fields.length - 1)
+			{
+				_var = Reflect.getProperty(_var, fields[i]);
+			}
+			Reflect.setProperty(_var, fields[fields.length - 1], value);
+		}
+		else
+		{
+			Reflect.setProperty(obj, fields[0], value);
+		}
+
+		return value;
+	}
+
 	public static function getObject(objectName:String):Dynamic
 	{
 		var varSplit = objectName.split('.');
