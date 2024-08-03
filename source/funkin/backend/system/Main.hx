@@ -123,9 +123,6 @@ class Main extends Sprite
 		#if GLOBAL_SCRIPT
 		funkin.backend.scripting.GlobalScript.init();
 		#end
-		#if ENABLE_LUA
-		funkin.backend.scripting.lua.CallBackHandler.init();
-		#end
 		#if (sys && TEST_BUILD)
 			trace("Used bird test / bird build. Switching into source assets.");
 			#if MOD_SUPPORT

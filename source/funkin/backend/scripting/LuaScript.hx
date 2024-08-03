@@ -1,21 +1,21 @@
 package funkin.backend.scripting;
-
+#if ENABLE_LUA
+import flixel.FlxState;
 import funkin.backend.scripting.lua.ShaderFunctions;
 import funkin.backend.scripting.lua.HScriptFunctions;
 import funkin.backend.scripting.lua.ReflectionFunctions;
-#if ENABLE_LUA
 import funkin.backend.scripting.lua.TweenFunctions;
-import haxe.io.Path;
 import funkin.backend.scripting.lua.LuaPlayState;
 import funkin.backend.scripting.lua.LuaTools;
-import flixel.FlxState;
+
+import haxe.DynamicAccess;
+import haxe.io.Path;
 
 import llua.Lua;
 import llua.LuaL;
 import llua.State;
 import llua.Convert;
 import llua.Macro.*;
-import haxe.DynamicAccess;
 
 import openfl.utils.Assets;
 
@@ -91,11 +91,10 @@ class LuaScript extends Script{
     public override function onCreate(path:String) {
 
         state = LuaL.newstate();
+		Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(callback_handler));
 		LuaL.openlibs(state);
 
 		this.luaPath = path.trim();
-		//For now, it only executes on PlayState
-		//game.stateScripts.scripts.push(this);
 		
         set('Event_Cancel', LuaTools.Event_Cancel);
         set('Event_Continue', LuaTools.Event_Continue);
@@ -218,6 +217,75 @@ class LuaScript extends Script{
 		this.active = false;
 		Lua.close(state);
 		state = null;
+	}
+
+	// Grabbed from Psych
+	public static function callback_handler(l:State, fname:String):Int
+	{
+		try
+		{
+			// trace('calling $fname');
+			var cbf:Dynamic = Lua_helper.callbacks.get(fname);
+
+			// Local functions have the lowest priority
+			// This is to prevent a "for" loop being called in every single operation,
+			// so that it only loops on reserved/special functions
+			if (cbf == null)
+			{
+				// trace('checking last script');
+				var last:LuaScript = LuaScript.curLuaScript;
+				if (last == null || last.state != l)
+				{
+					// trace('looping thru scripts');
+					for (script in PlayState.instance.scripts.scripts)
+						if (script is LuaScript)
+						{
+							var luaScript:LuaScript = cast(script, LuaScript);
+							if (luaScript != LuaScript.curLuaScript && luaScript != null && luaScript.state == l)
+							{
+								// trace('found script');
+								cbf = luaScript.callbacks.get(fname);
+								break;
+							}
+						}
+				}
+				else
+					cbf = last.callbacks.get(fname);
+			}
+
+			if (cbf == null)
+				return 0;
+
+			var nparams:Int = Lua.gettop(l);
+			var args:Array<Dynamic> = [];
+
+			for (i in 0...nparams)
+			{
+				args[i] = Convert.fromLua(l, i + 1);
+			}
+
+			var ret:Dynamic = null;
+			/* return the number of results */
+
+			ret = Reflect.callMethod(null, cbf, args);
+
+			if (ret != null)
+			{
+				Convert.toLua(l, ret);
+				return 1;
+			}
+		}
+		catch (e:Dynamic)
+		{
+			if (Lua_helper.sendErrorsToLua)
+			{
+				LuaL.error(l, 'CALLBACK ERROR! ${if (e.message != null) e.message else e}');
+				return 0;
+			}
+			trace(e);
+			throw(e);
+		}
+		return 0;
 	}
 }
 #end
