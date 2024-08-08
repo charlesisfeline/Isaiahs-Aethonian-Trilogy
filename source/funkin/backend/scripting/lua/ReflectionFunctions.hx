@@ -13,6 +13,15 @@ class ReflectionFunctions
 
 				return LuaTools.getValueFromVariable(obj, field);
 			},
+			"getArrayField" => function(field:String, index:Int, arrayField:String) {
+				var obj = instance;
+				var arr:Dynamic = null;
+				if(obj == null) return null;
+			
+				arr = LuaTools.getValueFromVariable(obj, field);
+
+				return LuaTools.getValueFromArray(arr, index, arrayField);
+			},
 			"getObjectField" => function(object:String, field:String) {
 				var obj:Dynamic = LuaTools.getObject(object);
 
@@ -40,6 +49,15 @@ class ReflectionFunctions
 				if (obj == null) return null;
 
 				return LuaTools.setValueToVariable(obj, field, value);
+			},
+			"setArrayField" => function(field:String, index:Int, arrayField:String, value:Dynamic) {
+				var obj:Dynamic = instance;
+				var arr:Dynamic = null;
+				if(obj == null) return null;
+			
+				arr = LuaTools.getValueFromVariable(obj, field);
+
+				return LuaTools.setValueToArray(arr, index, arrayField, value);
 			},
 			"setObjectField" => function(object:String, field:String, value:Dynamic) {
 				var obj:Dynamic = LuaTools.getObject(object);

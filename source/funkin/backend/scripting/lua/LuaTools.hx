@@ -52,6 +52,21 @@ class LuaTools {
 		return value;
 	}
 
+	public static function getValueFromArray(array:Dynamic, index:Int, variable:String):Dynamic {
+		//var fields = variable.trim().split('.');
+		var arrayValue:Dynamic = null; // The value of the given array on "index" position
+
+		if(array is FlxTypedGroup) {
+			arrayValue = cast array.members[index];
+		}
+		else {
+			arrayValue = array[index];
+		}
+		if(arrayValue == null) return null;
+
+		return LuaTools.getValueFromVariable(arrayValue, variable);
+	}
+
 	public static function setValueToVariable(obj:Dynamic, variable:String, value:Dynamic):Dynamic {
 		var fields = variable.trim().split('.');
 
@@ -70,6 +85,20 @@ class LuaTools {
 		}
 
 		return value;
+	}
+
+	public static function setValueToArray(array:Dynamic, index:Int, variable:String, value:Dynamic):Dynamic {
+		var arrayValue:Dynamic = null; // The value of the given array on "index" position
+
+		if(array is FlxTypedGroup) {
+			arrayValue = cast array.members[index];
+		}
+		else {
+			arrayValue = array[index];
+		}
+		if(arrayValue == null) return null;
+
+		return LuaTools.setValueToVariable(arrayValue, variable, value);
 	}
 
 	public static function getObject(objectName:String):Dynamic
