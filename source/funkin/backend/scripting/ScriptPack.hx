@@ -131,7 +131,7 @@ class ScriptPack extends Script {
 
 	public function luaSet(val:String, value:Dynamic) {
 		for(e in scripts) {
-			if(!(e is LuaScript)) return;
+			if(!(e is LuaScript)) continue;
 			e.set(val, value);
 		}
 	}
