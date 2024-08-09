@@ -23,13 +23,13 @@ class LuaScript extends Script{
     public var state:State = null;
 	public var luaPath:String = '';
     public var callbacks:Map<String, Dynamic> = new Map<String, Dynamic>();
-	// For now, it run on PlayState
-	var game:PlayState;
+
+	var parent:MusicBeatState;
 
 	public static var curLuaScript:LuaScript = null;
 
 	public function new(path:String) {
-		game = PlayState.instance;
+		parent = cast(FlxG.state, MusicBeatState);
 
 		super(path, true);
 		rawPath = path;
@@ -39,14 +39,8 @@ class LuaScript extends Script{
 		extension = Path.extension(path);
 		this.path = path;
 		onCreate(path);
-		if(game != null) {
-			for(k=>e in LuaPlayState.getPlayStateVariables(this)) {
-				set(k, e);
-			}
+		if(parent != null) {
 			setCallbacks(); // Sets all the callbacks
-		}
-		for(k=>e in OptionsVariables.getOptionsVariables(this)) {
-			set(k, e);
 		}
 		addCallback("disableScript", function() {
 			close();
@@ -129,34 +123,47 @@ class LuaScript extends Script{
     }
 
 	function setCallbacks() {
-		for(k=>e in LuaPlayState.getPlayStateFunctions(this)) {
-			addCallback(k, e);
-		}
-		for(k=>e in SpriteFunctions.getSpriteFunctions(this)) {
-			addCallback(k, e);
-		}
-		for(k=>e in TweenFunctions.getTweenFunctions(this)) {
-			addCallback(k, e);
-		}
-		for(k=>e in ReflectionFunctions.getReflectFunctions(game, this)) {
-			addCallback(k, e);
-		}
-		for(k=>e in HScriptFunctions.getHScriptFunctions(this)) {
-			switch(k) {
-				case "executeScript":
-					addCallback(k, e, true);
-				default:
-					addCallback(k, e);
+		if(parent is PlayState) {
+			for(k=>e in LuaPlayState.getPlayStateVariables(this)) {
+				set(k, e);
 			}
-			
+			for(k=>e in LuaPlayState.getPlayStateFunctions(this)) {
+				addCallback(k, e);
+			}
+			for (k => e in HScriptFunctions.getHScriptFunctions(this))
+			{
+				switch (k)
+				{
+					case "executeScript":
+						addCallback(k, e, true);
+					default:
+						addCallback(k, e);
+				}
+			}
 		}
-		for(k=>e in ShaderFunctions.getShaderFunctions(this)) {
+		
+		for(k=>e in SpriteFunctions.getSpriteFunctions(parent, this)) {
+			addCallback(k, e);
+		}
+		for(k=>e in TweenFunctions.getTweenFunctions(parent, this)) {
+			addCallback(k, e);
+		}
+		for(k=>e in ReflectionFunctions.getReflectFunctions(parent, this)) {
+			addCallback(k, e);
+		}
+		for(k=>e in UtilFunctions.getUtilFunctions(parent, this)) {
+			addCallback(k, e);
+		}
+		for(k=>e in ShaderFunctions.getShaderFunctions(parent, this)) {
 			switch(k) {
 				case "initShader" | "addShader": 
 					addCallback(k, e, true);
 				default:
 					addCallback(k, e);
 			}
+		}
+		for(k=>e in OptionsVariables.getOptionsVariables(this)) {
+			set(k, e);
 		}
 	}
 
@@ -226,7 +233,7 @@ class LuaScript extends Script{
 		return 0;
 	}
 
-	// Grabbed from Psych
+	// Grabbed from Psych (I'll try to adapt it with the CNE Lua Test implementation, I promise...)
 	public static function callback_handler(l:State, fname:String):Int
 	{
 		try

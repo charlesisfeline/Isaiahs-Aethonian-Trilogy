@@ -1,5 +1,6 @@
 package funkin.menus;
 
+import funkin.backend.scripting.lua.LuaTools;
 import haxe.Json;
 import funkin.backend.FunkinText;
 import funkin.menus.credits.CreditsMain;
@@ -157,7 +158,8 @@ class MainMenuState extends MusicBeatState
 			var daChoice:String = optionShit[curSelected];
 
 			var event = event("onSelectItem", EventManager.get(NameEvent).recycle(daChoice));
-			if (event.cancelled) return;
+			var luaEvent = luaEvent("onSelectItem", [daChoice]);
+			if (event.cancelled || luaEvent == LuaTools.Event_Cancel) return;
 			switch (daChoice)
 			{
 				case 'story mode': FlxG.switchState(new StoryMenuState());
@@ -170,7 +172,8 @@ class MainMenuState extends MusicBeatState
 	function changeItem(huh:Int = 0)
 	{
 		var event = event("onChangeItem", EventManager.get(MenuChangeEvent).recycle(curSelected, FlxMath.wrap(curSelected + huh, 0, menuItems.length-1), huh, huh != 0));
-		if (event.cancelled) return;
+		var luaEvent = luaEvent("onChangeItem", [event.oldValue, event.value, event.change, event.playMenuSFX]);
+		if (event.cancelled || luaEvent == LuaTools.Event_Cancel) return;
 
 		curSelected = event.value;
 

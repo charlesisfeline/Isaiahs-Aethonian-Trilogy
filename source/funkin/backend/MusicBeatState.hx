@@ -1,5 +1,6 @@
 package funkin.backend;
 
+import funkin.backend.scripting.lua.LuaTools;
 import funkin.backend.system.framerate.Framerate;
 import funkin.backend.system.GraphicCacheSprite;
 import funkin.backend.system.Controls;
@@ -93,16 +94,16 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 
 	public var scriptsAllowed:Bool = true;
 
-	public var luaScriptsAllowed:Bool = false;
+	public var luaScriptsAllowed:Bool = true;
 	#if ENABLE_LUA
 	/**
 	 * Map containing all the objects created from Lua
 	 */
 	public var luaObjects(default, never):Map<String, Map<String, Dynamic>> = [
-		"SPRITE" => new Map<String, Dynamic>(),
-		"TEXT" => new Map<String, Dynamic>(),
-		"TWEEN" => new Map<String, Dynamic>(),
-		"SHADER" => new Map<String, Dynamic>()
+		"SPRITE" => new Map<String, flixel.FlxSprite>(),
+		"TEXT" => new Map<String, flixel.FlxSprite>(),
+		"TWEEN" => new Map<String, flixel.tweens.FlxTween>(),
+		"SHADER" => new Map<String, funkin.backend.shaders.FunkinShader>()
 	];
 	#end
 	public var scriptName:String = null;
@@ -117,7 +118,7 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 	inline function get_controlsP2():Controls
 		return PlayerSettings.player2.controls;
 
-	public function new(scriptsAllowed:Bool = true, ?scriptName:String, ?luaScriptsAllowed:Bool = false) {
+	public function new(scriptsAllowed:Bool = true, ?scriptName:String, ?luaScriptsAllowed:Bool = true) {
 		super();
 		this.scriptsAllowed = #if SOFTCODED_STATES scriptsAllowed #else false #end;
 		this.luaScriptsAllowed = #if ENABLE_LUA luaScriptsAllowed #else false #end;
@@ -148,8 +149,10 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 	{
 		if (persistentUpdate || subState == null) {
 			call("preUpdate", [elapsed]);
+			luaCall("preUpdate", [elapsed]);
 			update(elapsed);
 			call("postUpdate", [elapsed]);
+			luaCall("postUpdate", [elapsed]);
 		}
 
 		if (_requestSubStateReset)
@@ -168,12 +171,14 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 		Framerate.offset.y = 0;
 		super.create();
 		call("create");
+		luaCall("create");
 	}
 
 	public override function createPost() {
 		super.createPost();
 		persistentUpdate = true;
 		call("postCreate");
+		luaCall("postCreate");
 		if (!skipTransIn)
 			openSubState(new MusicBeatTransition(null));
 		skipTransIn = false;
@@ -186,10 +191,22 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 		return defaultVal;
 	}
 
+	public function luaCall(name:String, ?args:Array<Dynamic>):Dynamic {
+		if(stateScripts != null)
+			return stateScripts.luaCall(name, args);
+		return null;
+	}
+
 	public function event<T:CancellableEvent>(name:String, event:T):T {
 		if(stateScripts != null)
 			stateScripts.call(name, [event]);
 		return event;
+	}
+
+	public function luaEvent(name:String, values:Array<Dynamic>):Dynamic {
+		if(stateScripts != null)
+			return stateScripts.luaCall(name, values);
+		return LuaTools.Event_Continue;
 	}
 
 	override function update(elapsed:Float)
@@ -199,6 +216,7 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 			loadScript();
 		}
 		call("update", [elapsed]);
+		luaCall("update", [elapsed]);
 
 		super.update(elapsed);
 	}
@@ -207,18 +225,21 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 	{
 		for(e in members) if (e != null && e is IBeatReceiver) cast(e, IBeatReceiver).stepHit(curStep);
 		call("stepHit", [curStep]);
+		luaCall("stepHit", [curStep]);
 	}
 
 	@:dox(hide) public function beatHit(curBeat:Int):Void
 	{
 		for(e in members) if (e != null && e is IBeatReceiver) cast(e, IBeatReceiver).beatHit(curBeat);
 		call("beatHit", [curBeat]);
+		luaCall("beatHit", [curBeat]);
 	}
 
 	@:dox(hide) public function measureHit(curMeasure:Int):Void
 	{
 		for(e in members) if (e != null && e is IBeatReceiver) cast(e, IBeatReceiver).measureHit(curMeasure);
 		call("measureHit", [curMeasure]);
+		luaCall("measureHit", [curMeasure]);
 	}
 
 	/**
@@ -247,12 +268,14 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 	public override function onResize(w:Int, h:Int) {
 		super.onResize(w, h);
 		event("onResize", EventManager.get(ResizeEvent).recycle(w, h, null, null));
+		luaEvent("onResize", [w, h]);
 	}
 
 	public override function destroy() {
 		super.destroy();
 		graphicCache.destroy();
 		call("destroy");
+		luaCall("destroy");
 		stateScripts = FlxDestroyUtil.destroy(stateScripts);
 	}
 
@@ -266,7 +289,8 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 
 	public override function switchTo(nextState:FlxState) {
 		var e = event("onStateSwitch", EventManager.get(StateEvent).recycle(nextState));
-		if (e.cancelled)
+		var le = luaEvent("onStateSwitch", []);
+		if (e.cancelled || le == LuaTools.Event_Cancel)
 			return false;
 
 		if (skipTransOut)
@@ -281,11 +305,13 @@ class MusicBeatState extends FlxState implements IBeatReceiver
 	public override function onFocus() {
 		super.onFocus();
 		call("onFocus");
+		luaCall("onFocus");
 	}
 
 	public override function onFocusLost() {
 		super.onFocusLost();
 		call("onFocusLost");
+		luaCall("onFocusLost");
 	}
 
 	public override function resetSubState() {

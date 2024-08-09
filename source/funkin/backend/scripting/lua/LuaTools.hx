@@ -101,26 +101,26 @@ class LuaTools {
 		return LuaTools.setValueToVariable(arrayValue, variable, value);
 	}
 
-	public static function getObject(objectName:String):Dynamic
+	public static function getObject(instance:MusicBeatState, objectName:String):Dynamic
 	{
 		var varSplit = objectName.split('.');
 
-		var object = getLuaObject(varSplit[0]);
+		var object = getLuaObject(instance, varSplit[0]);
 
 		return object;
 	}
 
-	public static function getLuaObject(name:String):Dynamic {
+	public static function getLuaObject(instance:MusicBeatState, name:String):Dynamic {
 		var object:Dynamic = null;
 
-		if(PlayState.instance.luaObjects["SPRITE"].exists(name)) {
-			object = PlayState.instance.luaObjects["SPRITE"].get(name);
+		if(instance.luaObjects["SPRITE"].exists(name)) {
+			object = instance.luaObjects["SPRITE"].get(name);
 		}
-		else if(PlayState.instance.luaObjects["TEXT"].exists(name)) {
-			object = PlayState.instance.luaObjects["TEXT"].get(name);
+		else if(instance.luaObjects["TEXT"].exists(name)) {
+			object = instance.luaObjects["TEXT"].get(name);
 		}
 		else if(object == null) {
-			object = Reflect.getProperty(PlayState.instance, name);
+			object = Reflect.getProperty(instance, name);
 		}
 
 		return object;

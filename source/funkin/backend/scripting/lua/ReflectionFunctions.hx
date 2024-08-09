@@ -23,7 +23,7 @@ class ReflectionFunctions
 				return LuaTools.getValueFromArray(arr, index, arrayField);
 			},
 			"getObjectField" => function(object:String, field:String) {
-				var obj:Dynamic = LuaTools.getObject(object);
+				var obj:Dynamic = LuaTools.getObject(instance, object);
 
 				if(obj == null) return null;
 
@@ -60,7 +60,7 @@ class ReflectionFunctions
 				return LuaTools.setValueToArray(arr, index, arrayField, value);
 			},
 			"setObjectField" => function(object:String, field:String, value:Dynamic) {
-				var obj:Dynamic = LuaTools.getObject(object);
+				var obj:Dynamic = LuaTools.getObject(instance, object);
 
 				if(obj == null) return null;
 
