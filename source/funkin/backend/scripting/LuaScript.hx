@@ -51,6 +51,7 @@ class LuaScript extends Script{
 		addCallback("disableScript", function() {
 			close();
 		}, true);
+		funkin.backend.system.framerate.LuaInfo.luaCount += 1;
 	}
 
     public override function onCreate(path:String) {
@@ -58,6 +59,8 @@ class LuaScript extends Script{
         state = LuaL.newstate();
 		Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(callback_handler));
 		LuaL.openlibs(state);
+		Lua.register_hxtrace_func(cpp.Callable.fromStaticFunction(print_function));
+		state.register_hxtrace_lib();
 
 		this.luaPath = path.trim();
 		
@@ -214,6 +217,13 @@ class LuaScript extends Script{
 		this.active = false;
 		Lua.close(state);
 		state = null;
+		funkin.backend.system.framerate.LuaInfo.luaCount -= 1;
+	}
+
+	static inline function print_function(s:String) : Int {
+		if (Script.curScript != null)
+            Script.curScript.trace(s);
+		return 0;
 	}
 
 	// Grabbed from Psych
