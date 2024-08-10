@@ -8,6 +8,8 @@ Originally used on FNF Vs SC. This custom engine includes the following features
 	- Customizable States
     - Custom States (soon...)
 
+**NOTE**: Due to the limited Lua flexibility, do not consider it as a Scripting replacement, but as a complement. Remember that the main scripting system of this engine is HScript.
+
 Known issues in the beta:
 - Some options are missing
 
