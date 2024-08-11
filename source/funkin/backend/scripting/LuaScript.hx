@@ -130,6 +130,9 @@ class LuaScript extends Script{
 			for(k=>e in LuaPlayState.getPlayStateFunctions(this)) {
 				addCallback(k, e);
 			}
+			for(k=>e in TweenFunctions.getNotITGTweenFunctions(parent, this)) {
+				addCallback(k, e);
+			}
 			for (k => e in HScriptFunctions.getHScriptFunctions(this))
 			{
 				switch (k)
