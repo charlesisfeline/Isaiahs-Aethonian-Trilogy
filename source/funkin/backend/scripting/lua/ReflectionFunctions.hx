@@ -16,11 +16,18 @@ class ReflectionFunctions
 			"getArrayField" => function(field:String, index:Int, arrayField:String) {
 				var obj = instance;
 				var arr:Dynamic = null;
+				var fieldIndex:Null<Int> = null;
 				if(obj == null) return null;
-			
-				arr = LuaTools.getValueFromVariable(obj, field);
+				// In case you want to get the value of an array from another array
+				// Ex: getArrayField(strumLines.members[0], 0, x)
+				if(field.contains("[") || field.contains("members[")) {
+					fieldIndex = Std.parseInt(field.substring(field.indexOf("["), field.indexOf("]")));
+				}
 
-				return LuaTools.getValueFromArray(arr, index, arrayField);
+				arr = LuaTools.getValueFromVariable(obj, field.split(".")[0]);
+
+				return LuaTools.getValueFromArray(fieldIndex != null ? arr is FlxTypedGroup ? arr.members[fieldIndex] : arr[fieldIndex] : arr, index,
+					arrayField);
 			},
 			"getObjectField" => function(object:String, field:String) {
 				var obj:Dynamic = LuaTools.getObject(instance, object);
@@ -53,11 +60,18 @@ class ReflectionFunctions
 			"setArrayField" => function(field:String, index:Int, arrayField:String, value:Dynamic) {
 				var obj:Dynamic = instance;
 				var arr:Dynamic = null;
+				var fieldIndex:Null<Int> = null;
 				if(obj == null) return null;
+				// In case you want to get the value of an array from another array
+				// Ex: setArrayField(strumLines.members[0], 0, "x", 40)
+				if(field.contains("[") || field.contains("members[")) {
+					fieldIndex = Std.parseInt(field.substring(field.indexOf("["), field.indexOf("]")));
+				}
 			
-				arr = LuaTools.getValueFromVariable(obj, field);
+				arr = LuaTools.getValueFromVariable(obj, field.split(".")[0]);
 
-				return LuaTools.setValueToArray(arr, index, arrayField, value);
+				return LuaTools.setValueToArray(fieldIndex != null ? arr is FlxTypedGroup ? arr.members[fieldIndex] : arr[fieldIndex] : arr, index,
+					arrayField, value);
 			},
 			"setObjectField" => function(object:String, field:String, value:Dynamic) {
 				var obj:Dynamic = LuaTools.getObject(instance, object);

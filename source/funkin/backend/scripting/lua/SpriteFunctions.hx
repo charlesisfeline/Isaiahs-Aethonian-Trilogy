@@ -1,5 +1,7 @@
 package funkin.backend.scripting.lua;
 
+import flixel.text.FlxText.FlxTextBorderStyle;
+import flixel.text.FlxText;
 import funkin.game.PlayState;
 
 class SpriteFunctions {
@@ -29,6 +31,29 @@ class SpriteFunctions {
 				var yourText:FunkinText = LuaTools.getObject(instance, name);
 				if(yourText != null){
 					yourText.text = text;
+				}
+			},
+			"setTextStyle" => function(name:String, borderStyle:String, ?size:Float = 1, ?color:Dynamic) {
+				var borderStyle:FlxTextBorderStyle = switch(borderStyle.toLowerCase().trim()) {
+					case "shadow":
+						SHADOW;
+					case "outline":
+						OUTLINE;
+					case "outline fast" | "outline2" | "outlinefast" | "outline_fast" | "outline-fast":
+						OUTLINE_FAST;
+					case "none" | null:
+						NONE;
+					default:
+						null;
+				};
+
+				if(borderStyle == null) {
+					return;
+				}
+
+				var text = LuaTools.getObject(instance, name);
+				if(text != null && text is FlxText) {
+					cast(text, FlxText).setBorderStyle(borderStyle, LuaTools.getColor(color), size);
 				}
 			},
 			"addSprite" => function(name:String, ?camera:String = "default") {
@@ -79,6 +104,24 @@ class SpriteFunctions {
 
 				if(sprite != null) {
 					sprite.scrollFactor.set(scrollX, scrollY);
+				}
+			},
+			"setSpriteColor" => function(name:String, ?r:Float = 1, ?g:Float = 1, ?b:Float = 1) {
+				var sprite:FlxSprite = LuaTools.getObject(instance, name);
+
+				if(sprite != null) {
+					sprite.colorTransform.redMultiplier = r;
+					sprite.colorTransform.greenMultiplier = g;
+					sprite.colorTransform.blueMultiplier = b;
+				}
+			},
+			"setSpriteColorOffset" => function(name:String, ?r:Float = 0, ?g:Float = 0, ?b:Float = 0) {
+				var sprite:FlxSprite = LuaTools.getObject(instance, name);
+
+				if(sprite != null) {
+					sprite.colorTransform.redOffset = r;
+					sprite.colorTransform.greenOffset = g;
+					sprite.colorTransform.blueOffset = b;
 				}
 			}
 		];

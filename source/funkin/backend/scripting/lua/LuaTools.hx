@@ -1,4 +1,6 @@
 package funkin.backend.scripting.lua;
+
+import flixel.util.FlxColor;
 import flixel.tweens.FlxTween.FlxTweenType;
 #if ENABLE_LUA
 import llua.Lua;
@@ -177,6 +179,10 @@ class LuaTools {
 			case 'pingpong' | 'boomerang' : FlxTweenType.PINGPONG;
 			default: FlxTweenType.ONESHOT;
 		}
+	}
+
+	public static function getColor(color:Dynamic):FlxColor {
+		return CoolUtil.getDefault(CoolUtil.getColorFromDynamic(color), FlxColor.BLACK);
 	}
 	#end
 }
