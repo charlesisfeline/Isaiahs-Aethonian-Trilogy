@@ -3,12 +3,19 @@ package funkin.backend.scripting.lua;
 #if ENABLE_LUA
 class ReflectionFunctions
 {
-	public static function getReflectFunctions(instance:MusicBeatState, ?script:Script):Map<String, Dynamic>
+	public static function getReflectFunctions(instance:MusicBeatState, ?script:LuaScript):Map<String, Dynamic>
 	{
 		return [
 			"getField" => function(field:String) {
 				var obj = instance;
 				
+				if(obj == null) return null;
+
+				return LuaTools.getValueFromVariable(obj, field);
+			},
+			"getParentField" => function(field:String) {
+				var obj = script.parent.parent;
+
 				if(obj == null) return null;
 
 				return LuaTools.getValueFromVariable(obj, field);
@@ -26,8 +33,18 @@ class ReflectionFunctions
 
 				arr = LuaTools.getValueFromVariable(obj, field.split(".")[0]);
 
-				return LuaTools.getValueFromArray(fieldIndex != null ? arr is FlxTypedGroup ? arr.members[fieldIndex] : arr[fieldIndex] : arr, index,
+				return LuaTools.getValueFromArray((fieldIndex != null) ? (arr is FlxTypedGroup) ? arr.members[fieldIndex] : arr[fieldIndex] : arr, index,
 					arrayField);
+			},
+			"getParentArrayField" => function(field:String, index:Int, arrayField:String) {
+				var obj = script.parent.parent;
+				var arr:Dynamic = null;
+
+				if(obj == null) return null;
+
+				arr = LuaTools.getValueFromVariable(obj, field.split(".")[0]);
+
+				return (arr is Array) ? arr[index] : arr;
 			},
 			"getObjectField" => function(object:String, field:String) {
 				var obj:Dynamic = LuaTools.getObject(instance, object);
@@ -57,6 +74,13 @@ class ReflectionFunctions
 
 				return LuaTools.setValueToVariable(obj, field, value);
 			},
+			"setParentField" => function(field:String, value:Dynamic) {
+				var obj = script.parent.parent;
+
+				if(obj == null) return null;
+
+				return LuaTools.setValueToVariable(obj, field, value);
+			},
 			"setArrayField" => function(field:String, index:Int, arrayField:String, value:Dynamic) {
 				var obj:Dynamic = instance;
 				var arr:Dynamic = null;
@@ -72,6 +96,16 @@ class ReflectionFunctions
 
 				return LuaTools.setValueToArray(fieldIndex != null ? arr is FlxTypedGroup ? arr.members[fieldIndex] : arr[fieldIndex] : arr, index,
 					arrayField, value);
+			},
+			"setParentArrayField" => function(field:String, index:Int, value:Dynamic) {
+				var obj:Dynamic = script.parent.parent;
+				var arr:Dynamic = null;
+
+				if(obj == null) return null;
+
+				arr = LuaTools.getValueFromVariable(obj, field);
+
+				return (arr is Array) ? arr[index] = value : arr = value;
 			},
 			"setObjectField" => function(object:String, field:String, value:Dynamic) {
 				var obj:Dynamic = LuaTools.getObject(instance, object);

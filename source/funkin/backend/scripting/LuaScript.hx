@@ -24,12 +24,15 @@ class LuaScript extends Script{
 	public var luaPath:String = '';
     public var callbacks:Map<String, Dynamic> = new Map<String, Dynamic>();
 
-	var parent:MusicBeatState;
+	public var parent:ParentObject;
 
 	public static var curLuaScript:LuaScript = null;
 
 	public function new(path:String) {
-		parent = cast(FlxG.state, MusicBeatState);
+		parent = {
+			instance: cast(FlxG.state, MusicBeatState),
+			parent: cast(FlxG.state, MusicBeatState)
+		};
 
 		super(path, true);
 		rawPath = path;
@@ -39,7 +42,7 @@ class LuaScript extends Script{
 		extension = Path.extension(path);
 		this.path = path;
 		onCreate(path);
-		if(parent != null) {
+		if(parent.instance != null) {
 			setCallbacks(); // Sets all the callbacks
 		}
 		addCallback("disableScript", function() {
@@ -60,7 +63,7 @@ class LuaScript extends Script{
 		
         set('Event_Cancel', LuaTools.Event_Cancel);
         set('Event_Continue', LuaTools.Event_Continue);
-		set('chartingMode', false);
+		//set('chartingMode', PlayState.chartingMode);
 
 		#if GLOBAL_SCRIPT
 		funkin.backend.scripting.GlobalScript.call("onScriptCreated", [null, "luascript"]);
@@ -123,14 +126,14 @@ class LuaScript extends Script{
     }
 
 	function setCallbacks() {
-		if(parent is PlayState) {
+		if(parent.instance is PlayState) {
 			for(k=>e in LuaPlayState.getPlayStateVariables(this)) {
 				set(k, e);
 			}
 			for(k=>e in LuaPlayState.getPlayStateFunctions(this)) {
 				addCallback(k, e);
 			}
-			for(k=>e in TweenFunctions.getNotITGTweenFunctions(parent, this)) {
+			for(k=>e in TweenFunctions.getNotITGTweenFunctions(parent.instance, this)) {
 				addCallback(k, e);
 			}
 			for (k => e in HScriptFunctions.getHScriptFunctions(this))
@@ -145,19 +148,19 @@ class LuaScript extends Script{
 			}
 		}
 		
-		for(k=>e in SpriteFunctions.getSpriteFunctions(parent, this)) {
+		for(k=>e in SpriteFunctions.getSpriteFunctions(parent.instance, this)) {
 			addCallback(k, e);
 		}
-		for(k=>e in TweenFunctions.getTweenFunctions(parent, this)) {
+		for(k=>e in TweenFunctions.getTweenFunctions(parent.instance, this)) {
 			addCallback(k, e);
 		}
-		for(k=>e in ReflectionFunctions.getReflectFunctions(parent, this)) {
+		for(k=>e in ReflectionFunctions.getReflectFunctions(parent.instance, this)) {
 			addCallback(k, e);
 		}
-		for(k=>e in UtilFunctions.getUtilFunctions(parent, this)) {
+		for(k=>e in UtilFunctions.getUtilFunctions(parent.instance, this)) {
 			addCallback(k, e);
 		}
-		for(k=>e in ShaderFunctions.getShaderFunctions(parent, this)) {
+		for(k=>e in ShaderFunctions.getShaderFunctions(parent.instance, this)) {
 			switch(k) {
 				case "initShader" | "addShader": 
 					addCallback(k, e, true);
@@ -185,7 +188,7 @@ class LuaScript extends Script{
     }
 
     public override function setParent(variable:Dynamic) {
-		//Logs.trace('Set-Parent is currently not available on Lua.', WARNING);
+		parent.parent = variable;
 	}
 
 	public override function setPublicMap(map:Map<String, Dynamic>) {
@@ -304,5 +307,11 @@ class LuaScript extends Script{
 		}
 		return 0;
 	}
+}
+
+typedef ParentObject =
+{
+	var instance:MusicBeatState;
+	var parent:Dynamic;
 }
 #end

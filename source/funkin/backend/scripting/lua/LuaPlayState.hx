@@ -14,6 +14,7 @@ class LuaPlayState {
 	public static function getPlayStateVariables(?script:Script):Map<String, Dynamic> {
 		return [
 			// PlayState property things 
+			"chartingMode"		=> PlayState.chartingMode,
 			"curBpm" 			=> Conductor.bpm,
 			"songBpm" 			=> PlayState.SONG.meta.bpm,
 			"scrollSpeed" 		=> PlayState.SONG.scrollSpeed,
