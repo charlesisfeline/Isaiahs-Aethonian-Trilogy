@@ -20,13 +20,13 @@ class LuaPlayState {
 			"scrollSpeed" 		=> PlayState.SONG.scrollSpeed,
 			"crochet" 			=> Conductor.crochet,
 			"stepCrochet" 		=> Conductor.stepCrochet,
-			//"songLength" 		=> (!PlayState.chartingMode) ? FlxG.sound.music.length : 0.0,
+			"songLength" 		=> FlxG.sound.music?.length ?? 0.0,
 			"songName" 			=> PlayState.SONG.meta.name,
 			"startedCountdown" 	=> PlayState.instance.startedCountdown,
 			"stage" 			=> PlayState.SONG.stage,
 			"storyMode" 		=> PlayState.isStoryMode,
 			"difficulty" 		=> PlayState.difficulty,
-			//"week" 			=> PlayState.storyWeek.name,
+			"week" 				=> PlayState.storyWeek?.name ?? "",
 			"seenCutscene" 		=> PlayState.seenCutscene,
 			"needVoices" 		=> PlayState.SONG.meta.needsVoices,
 			// Camera
@@ -54,25 +54,25 @@ class LuaPlayState {
 			"healthGainMulti" => 1.0,
 			"healthLossMulti" => 1.0,
 
-			//"botPlay" 		=> PlayState.instance.playerStrums.cpu,
+			"botPlay" 		=> PlayState.instance.playerStrums?.cpu ?? false,
 			
 			// TODO: playerStrum/opponentStrum position
-
-			"boyfriendName" => PlayState.SONG.strumLines[1].characters[0],
+			// Haxe 4.3.0+ null checks
+			"boyfriendName" => PlayState.SONG.strumLines[1]?.characters[0],
 			"boyfriendX" 	=> PlayState.instance.stage.characterPoses['boyfriend'].x,
 			"boyfriendY" 	=> PlayState.instance.stage.characterPoses['boyfriend'].y,
-			//"boyfriendRawX" => PlayState.instance.boyfriend.x,
-			//"boyfriendRawY" => PlayState.instance.boyfriend.y,
-			"dadName" 		=> PlayState.SONG.strumLines[0].characters[0],
+			"boyfriendRawX" => PlayState.instance.boyfriend?.x ?? 0,
+			"boyfriendRawY" => PlayState.instance.boyfriend?.y ?? 0,
+			"dadName" 		=> PlayState.SONG.strumLines[0]?.characters[0],
 			"dadX" 			=> PlayState.instance.stage.characterPoses['dad'].x,
 			"dadY" 			=> PlayState.instance.stage.characterPoses['dad'].y,
-			//"dadRawX" 		=> PlayState.instance.dad.x,
-			//"dadRawY" 		=> PlayState.instance.dad.y,
-			"girlfriendName" => PlayState.SONG.strumLines[2].characters[0],
-			"girlfriendX" 	=> PlayState.instance.stage.characterPoses['girlfriend'].x,
-			"girlfriendY" 	=> PlayState.instance.stage.characterPoses['girlfriend'].y,
-			//"girlfriendRawX" => PlayState.instance.gf.x,
-			//"girlfriendRawY" => PlayState.instance.gf.y
+			"dadRawX" 		=> PlayState.instance.dad?.x ?? 0,
+			"dadRawY" 		=> PlayState.instance.dad?.y ?? 0,
+			"girlfriendName" => PlayState.SONG.strumLines[2]?.characters[0] ?? "",
+			"girlfriendX" 	=> PlayState.instance.stage.characterPoses['girlfriend']?.x ?? 0,
+			"girlfriendY" 	=> PlayState.instance.stage.characterPoses['girlfriend']?.y ?? 0,
+			"girlfriendRawX" => PlayState.instance.gf?.x ?? 0,
+			"girlfriendRawY" => PlayState.instance.gf?.y ?? 0
 		];
 	}
 

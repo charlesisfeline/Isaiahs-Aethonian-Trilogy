@@ -19,7 +19,10 @@ using llua.LuaL;
 using llua.Convert;
 
 class LuaScript extends Script{
-
+    /**
+     * TODO: rewrite the Lua Scripting completely, since many code lines are grabbed from Psych.
+	 * It will have the same Lua implementation from official CNE "lua-test" branch
+     */
     public var state:State = null;
 	public var luaPath:String = '';
     public var callbacks:Map<String, Dynamic> = new Map<String, Dynamic>();
