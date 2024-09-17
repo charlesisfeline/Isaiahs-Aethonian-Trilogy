@@ -260,7 +260,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	 * @param parameters (Optional) Parameters of the function.
 	 * @return Result (if void, then null)
 	 */
-	public function call(func:String, ?parameters:Array<Dynamic>):Dynamic {
+	public function call(func:String, ?parameters:Array<Dynamic>, ?onlyHaxe:Bool = false):Dynamic {
 		var oldScript = curScript;
 		curScript = this;
 
