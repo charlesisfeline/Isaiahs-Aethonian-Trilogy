@@ -162,8 +162,7 @@ class MainMenuState extends MusicBeatState
 			var daChoice:String = optionShit[curSelected];
 
 			var event = event("onSelectItem", EventManager.get(NameEvent).recycle(daChoice));
-			var luaEvent = luaEvent("onSelectItem", [daChoice]);
-			if (event.cancelled || luaEvent == LuaTools.Event_Cancel) return;
+			if (event.cancelled) return;
 			switch (daChoice)
 			{
 				case 'story mode': FlxG.switchState(new StoryMenuState());
@@ -176,8 +175,7 @@ class MainMenuState extends MusicBeatState
 	function changeItem(huh:Int = 0)
 	{
 		var event = event("onChangeItem", EventManager.get(MenuChangeEvent).recycle(curSelected, FlxMath.wrap(curSelected + huh, 0, menuItems.length-1), huh, huh != 0));
-		var luaEvent = luaEvent("onChangeItem", [event.oldValue, event.value, event.change, event.playMenuSFX]);
-		if (event.cancelled || luaEvent == LuaTools.Event_Cancel) return;
+		if (event.cancelled) return;
 
 		curSelected = event.value;
 

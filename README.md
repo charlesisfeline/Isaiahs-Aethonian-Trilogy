@@ -3,7 +3,10 @@
 
 Originally used on FNF Vs SC. This custom engine includes the following features
 
-- Full Lua Script support (semi-Psych)
+- Modchart aggregates
+	- Skewable notes
+
+- Full Lua Script support (non-Psych)
     - Gameplay Scripting
 	- Customizable States
     - Custom States (soon...)

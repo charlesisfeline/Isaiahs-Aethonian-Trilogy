@@ -52,9 +52,9 @@ class ScriptPack extends Script {
 		return script;
 	}
 
-	public override function call(func:String, ?parameters:Array<Dynamic>):Dynamic {
+	public override function call(func:String, ?parameters:Array<Dynamic>, ?onlyHaxe:Bool = false):Dynamic {
 		for(e in scripts) {
-			if(e is LuaScript) continue;
+			if(e is LuaScript && onlyHaxe) continue;
 			if(e.active) 
 				e.call(func, parameters);
 		}
@@ -89,24 +89,10 @@ class ScriptPack extends Script {
 	public inline function event<T:CancellableEvent>(func:String, event:T):T {
 		for(e in scripts) {
 			if(!e.active) continue;
-			if(e is LuaScript) continue;
+			//if(e is LuaScript) continue;
 			e.call(func, [event]);
 			if (event.cancelled && !event.__continueCalls) break;
 		}
-		return event;
-	}
-
-	public inline function luaEvent(func:String, values:Array<Dynamic>):Dynamic {
-		
-		var event:Dynamic = LuaTools.Event_Continue;
-		#if ENABLE_LUA
-		for(e in scripts) {
-			if(!(e is LuaScript)) continue;
-			event = e.call(func, values);
-			if(event == LuaTools.Event_Cancel) 
-				break;
-		}
-		#end
 		return event;
 	}
 

@@ -290,9 +290,8 @@ class FreeplayState extends MusicBeatState
 		if (songs[curSelected].difficulties.length <= 0) return;
 
 		var event = event("onSelect", EventManager.get(FreeplaySongSelectEvent).recycle(songs[curSelected].name, songs[curSelected].difficulties[curDifficulty], __opponentMode, __coopMode));
-		var luaEvent = luaEvent("onSelect", [event.song, event.difficulty, event.opponentMode, event.coopMode]);
 
-		if (event.cancelled || luaEvent == LuaTools.Event_Cancel) return;
+		if (event.cancelled) return;
 
 		Options.freeplayLastSong = songs[curSelected].name;
 		Options.freeplayLastDifficulty = songs[curSelected].difficulties[curDifficulty];
@@ -319,9 +318,8 @@ class FreeplayState extends MusicBeatState
 		var curSong = songs[curSelected];
 		var validDifficulties = curSong.difficulties.length > 0;
 		var event = event("onChangeDiff", EventManager.get(MenuChangeEvent).recycle(curDifficulty, validDifficulties ? FlxMath.wrap(curDifficulty + change, 0, curSong.difficulties.length-1) : 0, change));
-		var luaEvent = luaEvent("onChangeDiff", [event.oldValue, event.value, event.change, event.playMenuSFX]);
 
-		if (event.cancelled || luaEvent == LuaTools.Event_Cancel) return;
+		if (event.cancelled) return;
 
 		curDifficulty = event.value;
 
@@ -367,9 +365,8 @@ class FreeplayState extends MusicBeatState
 
 		var bothEnabled = songs[curSelected].coopAllowed && songs[curSelected].opponentModeAllowed;
 		var event = event("onChangeCoopMode", EventManager.get(MenuChangeEvent).recycle(curCoopMode, FlxMath.wrap(curCoopMode + change, 0, bothEnabled ? 3 : 1), change));
-		var luaEvent = luaEvent("onChangeCoopMode", [event.oldValue, event.value, event.change, event.playMenuSFX]);
 
-		if (event.cancelled || luaEvent == LuaTools.Event_Cancel) return;
+		if (event.cancelled) return;
 
 		curCoopMode = event.value;
 
@@ -393,8 +390,7 @@ class FreeplayState extends MusicBeatState
 
 		var bothEnabled = songs[curSelected].coopAllowed && songs[curSelected].opponentModeAllowed;
 		var event = event("onChangeSelection", EventManager.get(MenuChangeEvent).recycle(curSelected, FlxMath.wrap(curSelected + change, 0, songs.length-1), change));
-		var luaEvent = luaEvent("onChangeSelection", [event.oldValue, event.value, event.change, event.playMenuSFX]);
-		if (event.cancelled || luaEvent == LuaTools.Event_Cancel) return;
+		if (event.cancelled) return;
 
 		curSelected = event.value;
 		if (event.playMenuSFX) CoolUtil.playMenuSFX(SCROLL, 0.7);
@@ -411,8 +407,7 @@ class FreeplayState extends MusicBeatState
 
 	function updateOptionsAlpha() {
 		var event = event("onUpdateOptionsAlpha", EventManager.get(FreeplayAlphaUpdateEvent).recycle(0.6, 0.45, 1, 1, 0.25));
-		var luaEvent = luaEvent("onUpdateOptionsAlpha", [event.idleAlpha, event.idlePlayingAlpha, event.selectedAlpha, event.selectedPlayingAlpha, event.lerp]);
-		if (event.cancelled || luaEvent == LuaTools.Event_Cancel) return;
+		if (event.cancelled) return;
 
 		for (i in 0...iconArray.length)
 			iconArray[i].alpha = lerp(iconArray[i].alpha, #if PRELOAD_ALL songInstPlaying ? event.idlePlayingAlpha : #end event.idleAlpha, event.lerp);
