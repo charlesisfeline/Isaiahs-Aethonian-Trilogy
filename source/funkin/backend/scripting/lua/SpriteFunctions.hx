@@ -17,6 +17,7 @@ class SpriteFunctions {
 				if(imagePath != null && imagePath.length > 0)
 					theSprite.loadGraphic(Paths.image(imagePath));
 				instance.luaObjects["SPRITE"].set(name, theSprite);
+				cast(script, LuaScript).set(name, theSprite);
 			},
 			"createText" => function(name:String, text:String = '', ?x:Float = 0, ?y:Float = 0, ?width:Float = 0, ?size:Int = 16, ?camera:String = 'default') {
 				if(instance.luaObjects["TEXT"].exists(name))
@@ -26,6 +27,7 @@ class SpriteFunctions {
 				yourText.scrollFactor.set();
 				yourText.cameras = [LuaTools.getCamera(camera)];
 				instance.luaObjects["TEXT"].set(name, yourText);
+				cast(script, LuaScript).set(name, yourText);
 			},
 			"setText" => function(name:String, text:String = '') {
 				var yourText:FunkinText = LuaTools.getObject(instance, name);

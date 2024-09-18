@@ -78,6 +78,11 @@ class LuaPlayState {
 
 	public static function getPlayStateFunctions(?script:Script):Map<String, Dynamic> {
 		return [
+			"startCutscene" => function(prefix:String, ?cutsceneScriptPath:String) {
+				PlayState.instance.startCutscene(prefix, cutsceneScriptPath, () -> {
+					PlayState.instance.scripts.luaCall("onStartCutscene", []);
+				});
+			},
 			"callFunction" => function(func:String, ?args:Array<Dynamic>) {
 				PlayState.instance.scripts.call(func, args);
 				return;

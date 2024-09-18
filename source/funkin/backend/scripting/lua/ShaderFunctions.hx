@@ -16,6 +16,7 @@ class ShaderFunctions {
 				var cShader = new CustomShader(name, Std.string(glslVersion));
 
 				instance.luaObjects["SHADER"].set(name, cShader);
+				cast(script, LuaScript).set(name, cShader);
 			},
 			"addShader" => function(object:String, shader:String) {
 				if(!Options.gameplayShaders) return;
