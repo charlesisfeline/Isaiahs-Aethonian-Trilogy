@@ -1,5 +1,9 @@
 package funkin.backend.scripting.lua;
 
+import funkin.backend.scripting.events.DynamicEvent;
+import funkin.backend.scripting.events.CancellableEvent;
+import flixel.util.FlxTimer;
+
 class UtilFunctions {
 	public static function getUtilFunctions(instance:MusicBeatState, ?script:Script):Map<String, Dynamic> {
 		return [
@@ -10,6 +14,29 @@ class UtilFunctions {
 			},
 			"lerp" => function(v1:Float, v2:Float, ratio:Float, fps:Bool = false) {
 				return instance.lerp(v1, v2, ratio, fps);
+			},
+			"setTimer" => function(name:String, delay:Float = 1, times:Int = 1) {
+				var timer = new FlxTimer();
+				timer.time = delay;
+				timer.loops = times;
+				instance.luaObjects["TIMERS"].set(name, timer);
+			},
+			"startTimer" => function(name:String) {
+				var timer:FlxTimer = instance.luaObjects["TIMERS"].get(name);
+				timer.start(timer.time, (_) -> {
+					var event:DynamicEvent = cast(script, LuaScript).event("onTimer", EventManager.get(DynamicEvent).recycle(name, timer.loopsLeft, timer.timeLeft, timer.progress, timer.finished));
+					if(_.finished || event.cancelled)  {
+						_.cancel();
+						instance.luaObjects["TIMERS"].remove(name);
+						_.destroy();
+					}
+				}, timer.loops);
+			},
+			"cancelTimer" => function(name:String) {
+				var timer:FlxTimer = instance.luaObjects["TIMERS"].get(name);
+				timer.cancel();
+				instance.luaObjects["TIMERS"].remove(name);
+				timer.destroy();
 			}
 		];
 	}

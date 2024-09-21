@@ -1,4 +1,5 @@
 package funkin.backend.scripting;
+import funkin.backend.scripting.events.CancellableEvent;
 #if ENABLE_LUA
 import funkin.backend.scripting.lua.*;
 
@@ -163,6 +164,11 @@ class LuaScript extends Script{
 		for(k=>e in OptionsVariables.getOptionsVariables(this)) {
 			set(k, e);
 		}
+	}
+
+	public function event<T:CancellableEvent>(func:String, event:T):T {
+		this.call(func, [event]);
+		return event;
 	}
 
 	public function addCallback(funcName:String, func:Dynamic) {
