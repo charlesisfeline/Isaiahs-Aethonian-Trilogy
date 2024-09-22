@@ -15,10 +15,6 @@ using llua.LuaL;
 using llua.Convert;
 
 class LuaScript extends Script{
-    /**
-     * TODO: rewrite the Lua Scripting completely, since many code lines are grabbed from Psych.
-	 * It will have the same Lua implementation from official CNE "lua-test" branch
-     */
     public var state:State = null;
 	public var luaCallbacks:Map<String, Dynamic> = [];
 	public var lastStackID:Int = 0;
@@ -78,8 +74,6 @@ class LuaScript extends Script{
 
         state.setglobal("__funkinMetaTable");
 		
-        set('Event_Cancel', LuaTools.Event_Cancel);
-        set('Event_Continue', LuaTools.Event_Continue);
 		//set('chartingMode', PlayState.chartingMode);
 
 		#if GLOBAL_SCRIPT
@@ -102,14 +96,14 @@ class LuaScript extends Script{
         state.getglobal(funcName);
 
         if (state.type(-1) != Lua.LUA_TFUNCTION)
-            return LuaTools.Event_Continue;
+            return null;
         
         for (k=>val in args)
             pushArg(val);
 
         if (state.pcall(args.length, 1, 0) != 0) {
             this.error('${state.tostring(-1)}');
-            return LuaTools.Event_Continue;
+            return null;
         }
 
         var v = fromLua(state.gettop());
@@ -224,7 +218,6 @@ class LuaScript extends Script{
 
 	public function fromLua(stackPos:Int):Dynamic {
 		var ret:Any = null;
-
         switch(state.type(stackPos)) {
 			case Lua.LUA_TNIL:
 				ret = null;

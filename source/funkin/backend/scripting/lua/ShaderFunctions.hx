@@ -1,6 +1,7 @@
 package funkin.backend.scripting.lua;
-
+#if ENABLE_LUA
 import funkin.backend.shaders.CustomShader;
+import funkin.backend.scripting.lua.shaders.LuaShader;
 
 class ShaderFunctions {
 	public static function getShaderFunctions(instance:MusicBeatState, ?script:Script):Map<String, Dynamic> {
@@ -13,7 +14,7 @@ class ShaderFunctions {
 					return;
 				}
 
-				var cShader = new CustomShader(name, Std.string(glslVersion));
+				var cShader = new LuaShader(name, Std.string(glslVersion));
 
 				instance.luaObjects["SHADER"].set(name, cShader);
 				cast(script, LuaScript).set(name, cShader);
@@ -27,7 +28,7 @@ class ShaderFunctions {
 				}
 
 				var object:Dynamic = LuaTools.getObject(instance, object);
-				var cShader:CustomShader = instance.luaObjects["SHADER"].get(shader);
+				var cShader:LuaShader = instance.luaObjects["SHADER"].get(shader);
 
 				if(object != null) {
 					
@@ -59,7 +60,7 @@ class ShaderFunctions {
 					}
 					else if (object is FlxCamera) // TODO: optimize the remove from map
 					{
-						var cShader:CustomShader = instance.luaObjects["SHADER"].get(shader);
+						var cShader:LuaShader = instance.luaObjects["SHADER"].get(shader);
 						if (cShader == null)
 							return;
 						cast(object, FlxCamera).removeShader(cShader);
@@ -69,7 +70,7 @@ class ShaderFunctions {
 					}
 				}
 				else {
-					var cShader:CustomShader = instance.luaObjects["SHADER"].get(shader);
+					var cShader:LuaShader = instance.luaObjects["SHADER"].get(shader);
 					if (cShader == null)
 						return;
 					LuaTools.getCamera("default").removeShader(cShader); //Removes the shader to the current state camera
@@ -81,7 +82,7 @@ class ShaderFunctions {
 			"getShaderField" => function(shader:String, field:String) {
 				if(!Options.gameplayShaders) return null;
 
-				var cShader:CustomShader = instance.luaObjects["SHADER"].get(shader);
+				var cShader:LuaShader = instance.luaObjects["SHADER"].get(shader);
 				if (cShader != null)
 					return cShader.hget(field);
 				else
@@ -93,7 +94,7 @@ class ShaderFunctions {
 			"setShaderField" => function(shader:String, field:String, value:Dynamic) {
 				if(!Options.gameplayShaders) return;
 
-				var cShader:CustomShader = instance.luaObjects["SHADER"].get(shader);
+				var cShader:LuaShader = instance.luaObjects["SHADER"].get(shader);
 				if (cShader != null)
 					cShader.hset(field, value);
 				else
@@ -105,3 +106,4 @@ class ShaderFunctions {
 		];
 	}
 }
+#end

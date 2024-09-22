@@ -1,7 +1,7 @@
 package funkin.backend.scripting.lua;
 
+import funkin.backend.scripting.lua.events.TimerEvent;
 import funkin.backend.scripting.events.DynamicEvent;
-import funkin.backend.scripting.events.CancellableEvent;
 import flixel.util.FlxTimer;
 
 class UtilFunctions {
@@ -24,7 +24,7 @@ class UtilFunctions {
 			"startTimer" => function(name:String) {
 				var timer:FlxTimer = instance.luaObjects["TIMERS"].get(name);
 				timer.start(timer.time, (_) -> {
-					var event:DynamicEvent = cast(script, LuaScript).event("onTimer", EventManager.get(DynamicEvent).recycle(name, timer.loopsLeft, timer.timeLeft, timer.progress, timer.finished));
+					var event:TimerEvent = cast(script, LuaScript).event("onTimer", EventManager.get(TimerEvent).recycle(name, timer.loopsLeft, timer.timeLeft, timer.progress, timer.finished));
 					if(_.finished || event.cancelled)  {
 						_.cancel();
 						instance.luaObjects["TIMERS"].remove(name);

@@ -1,4 +1,5 @@
 package funkin.backend.scripting.lua;
+#if ENABLE_LUA
 #if NDLLS_SUPPORTED
 class NdllFunctions {
 	public static var ndllFunctions(default, null):Map<String, Dynamic> = new Map<String, Dynamic>();
@@ -16,4 +17,5 @@ class NdllFunctions {
 		];
 	}
 }
+#end
 #end

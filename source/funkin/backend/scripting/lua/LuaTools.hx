@@ -2,16 +2,15 @@ package funkin.backend.scripting.lua;
 
 import flixel.util.FlxColor;
 import flixel.tweens.FlxTween.FlxTweenType;
-#if ENABLE_LUA
-import llua.Lua;
-#end
+
 class LuaTools {
-	
-	public static final Event_Cancel:Dynamic = "##BIRDLUA_EVENTCANCEL";
-	public static final Event_Continue:Dynamic = "##BIRDLUA_EVENTCONTINUE";
 	#if ENABLE_LUA
 	public static function getCurrentSystem():String {
+		#if linux
+		return 'linux';
+		#else
 		return lime.system.System.platformName;
+		#end
 	}
 
 	public static function getCamera(camera:String):FlxCamera {
@@ -20,18 +19,6 @@ class LuaTools {
 			case "camhud" | "hud": PlayState.instance.camHUD;
 			default: FlxG.cameras.list[FlxG.cameras.list.length - 1];
 		}
-	}
-
-	public static function typeToString(type:Int):String {
-		switch(type) {
-			case Lua.LUA_TBOOLEAN: return "boolean";
-			case Lua.LUA_TNUMBER: return "number";
-			case Lua.LUA_TSTRING: return "string";
-			case Lua.LUA_TTABLE: return "table";
-			case Lua.LUA_TFUNCTION: return "function";
-		}
-		if (type <= Lua.LUA_TNIL) return "nil";
-		return "unknown";
 	}
 
 	public static function getValueFromVariable(obj:Dynamic, variable:String):Dynamic {
@@ -127,7 +114,7 @@ class LuaTools {
 
 		return object;
 	}
-	// from Psych (sorry, I had to. Too much time to write it one by one)
+
 	public static function getEase(?ease:String = '')
 	{
 		return switch(ease.toLowerCase().trim()) {
@@ -185,10 +172,4 @@ class LuaTools {
 		return CoolUtil.getDefault(CoolUtil.getColorFromDynamic(color), FlxColor.BLACK);
 	}
 	#end
-}
-
-enum abstract ObjectType(String) {
-	var SPRITE;
-	var TWEEN;
-	var SHADER;
 }

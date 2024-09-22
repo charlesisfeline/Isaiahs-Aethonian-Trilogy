@@ -62,22 +62,14 @@ class ScriptPack extends Script {
 	}
 
 	public function luaCall(func:String, ?parameters:Array<Dynamic>):Dynamic {
-		var rv:Dynamic = LuaTools.Event_Continue;
 		#if ENABLE_LUA
 		for(e in scripts) {
 			if(!(e is LuaScript)) continue;
-			if(e.active) {
-				var value:Dynamic = e.call(func, parameters);
-				if(value == LuaTools.Event_Cancel) {
-					rv = value;
-					return rv;
-				}
-				if(value != null)
-					rv = value;
-			}	
+			if(e.active) 
+				e.call(func, parameters);	
 		}
 		#end
-		return rv;
+		return null;
 	}
 
 	/**

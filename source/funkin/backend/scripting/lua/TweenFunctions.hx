@@ -35,12 +35,35 @@ class TweenFunctions {
 					ease: LuaTools.getEase(ease), 
 					type: LuaTools.getTweenType(type), 
 					startDelay: timeDelayed,
+					onUpdate: (_) -> {
+						script.call('onTweenUpdate', [tweenName, _.executions]);
+					},
 					onComplete: (_) -> {
 						// Prevents removing itself on "Loop" tween type (LOOPING, PINGPONG or PERSIST)
 						if(_.type == FlxTweenType.ONESHOT || _.type == FlxTweenType.BACKWARD)
 							instance.luaObjects["TWEEN"].remove(tweenName);
 						script.call('onTweenFinished', [tweenName]);
 					}
+				}));
+			},
+			"valueTween" => function(tweenName:String, startValue:Float, endValue:Float, duration:Float, ease:String, type:String, timeDelayed:Int = 0) {
+				instance.luaObjects["TWEEN"].set(tweenName, FlxTween.num(startValue, endValue, duration, 
+				{
+					ease: LuaTools.getEase(ease), 
+					type: LuaTools.getTweenType(type), 
+					startDelay: timeDelayed,
+					onUpdate: (_) -> {
+						script.call('onTweenUpdate', [tweenName, _.executions]);
+					},
+					onComplete: (_) -> {
+						// Prevents removing itself on "Loop" tween type (LOOPING, PINGPONG or PERSIST)
+						if(_.type == FlxTweenType.ONESHOT || _.type == FlxTweenType.BACKWARD)
+							instance.luaObjects["TWEEN"].remove(tweenName);
+						script.call('onTweenFinished', [tweenName]);
+					}
+				},
+				function(value:Float) {
+					script.call('onValueTween', [tweenName, value]);
 				}));
 			},
 			"cancelTween" => function(tweenName:String) {
@@ -81,6 +104,9 @@ class TweenFunctions {
 					ease: LuaTools.getEase(ease),
 					type: LuaTools.getTweenType(type),
 					startDelay: timeDelayed,
+					onUpdate: (_) -> {
+						script.call('onTweenUpdate', [tweenName, _.executions]);
+					},
 					onComplete: (_) ->
 					{
 						// Prevents removing itself on "Loop" tween type (LOOPING, PINGPONG or PERSIST)
