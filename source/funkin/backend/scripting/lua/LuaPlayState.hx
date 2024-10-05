@@ -9,7 +9,7 @@ import funkin.options.Options;
 import flixel.util.typeLimit.OneOfThree;
 import flixel.FlxG;
 
-class LuaPlayState {
+final class LuaPlayState {
 
 	public static function getPlayStateVariables(?script:Script):Map<String, Dynamic> {
 		return [

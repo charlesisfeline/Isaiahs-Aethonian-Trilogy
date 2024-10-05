@@ -3,7 +3,7 @@ package funkin.backend.scripting.lua;
 import funkin.backend.shaders.CustomShader;
 import funkin.backend.scripting.lua.shaders.LuaShader;
 
-class ShaderFunctions {
+final class ShaderFunctions {
 	public static function getShaderFunctions(instance:MusicBeatState, ?script:Script):Map<String, Dynamic> {
 		return [
 			"initShader" => function(name:String, ?glslVersion:Int = 120) {

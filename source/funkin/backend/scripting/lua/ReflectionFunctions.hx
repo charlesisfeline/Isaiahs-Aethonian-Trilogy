@@ -1,7 +1,7 @@
 package funkin.backend.scripting.lua;
 
 #if ENABLE_LUA
-class ReflectionFunctions
+final class ReflectionFunctions
 {
 	public static function getReflectFunctions(instance:MusicBeatState, ?script:LuaScript):Map<String, Dynamic>
 	{

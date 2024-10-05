@@ -129,12 +129,12 @@ class LuaScript extends Script{
 			for(k=>e in TweenFunctions.getNotITGTweenFunctions(parent.instance, this)) {
 				addCallback(k, e);
 			}
-			for (k => e in HScriptFunctions.getHScriptFunctions(this))
-			{
-				addCallback(k, e);
-			}
+			
 		}
-		
+		for (k => e in HScriptFunctions.getHScriptFunctions(parent.instance, this))
+		{
+			addCallback(k, e);
+		}
 		for(k=>e in SpriteFunctions.getSpriteFunctions(parent.instance, this)) {
 			addCallback(k, e);
 		}
@@ -148,6 +148,9 @@ class LuaScript extends Script{
 			addCallback(k, e);
 		}
 		for(k=>e in ShaderFunctions.getShaderFunctions(parent.instance, this)) {
+			addCallback(k, e);
+		}
+		for(k=>e in SoundFunctions.getSoundFunctions(parent.instance, this)){
 			addCallback(k, e);
 		}
 		#if NDLLS_SUPPORTED

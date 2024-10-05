@@ -4,7 +4,7 @@ import funkin.backend.scripting.lua.events.TimerEvent;
 import funkin.backend.scripting.events.DynamicEvent;
 import flixel.util.FlxTimer;
 
-class UtilFunctions {
+final class UtilFunctions {
 	public static function getUtilFunctions(instance:MusicBeatState, ?script:Script):Map<String, Dynamic> {
 		return [
 			"callStateFunction" => function(func:String, ?args:Array<Dynamic>) {
