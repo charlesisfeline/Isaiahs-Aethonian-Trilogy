@@ -1,11 +1,12 @@
 package funkin.backend.scripting.lua;
 #if ENABLE_LUA
-#if NDLLS_SUPPORTED
-class NdllFunctions {
+
+final class NdllFunctions {
 	public static var ndllFunctions(default, null):Map<String, Dynamic> = new Map<String, Dynamic>();
 	//No tested yet
 	public static function getNdllFunctions(?script:Script):Map<String, Dynamic> {
 		return [
+			#if NDLLS_SUPPORTED
 			"createNdllFunction" => function(funcName:String, ndll:String, func:String, nArgs:Int) {
 				var func:Dynamic = NdllUtil.getFunction(ndll, func, nArgs);
 				ndllFunctions.set(funcName, func);
@@ -14,8 +15,8 @@ class NdllFunctions {
 				var func:Dynamic = ndllFunctions.get(funcName);
 				Reflect.callMethod(null, func, args);
 			}
+			#end
 		];
 	}
 }
-#end
 #end

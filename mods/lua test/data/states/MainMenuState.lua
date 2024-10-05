@@ -71,7 +71,7 @@ end
 
 function onChangeItem(event)
 	--event.cancelled = true
-
+	playSound('', 'dialogue/text-pixel', 0.7)
 end
 
 function onStateSwitch(nextState)

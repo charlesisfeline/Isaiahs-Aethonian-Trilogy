@@ -3,7 +3,7 @@ package funkin.backend.scripting.lua;
 import funkin.backend.assets.ModsFolder;
 import funkin.options.Options;
 
-class OptionsVariables {
+final class OptionsVariables {
 	public static function getOptionsVariables(?script:Script):Map<String, Dynamic> {
 		return [
 			// Preferences

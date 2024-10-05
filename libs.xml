@@ -13,7 +13,7 @@
 	<git name="linc_luajit" url="https://github.com/superpowers04/linc_luajit" ref="master"/>
 	<git name="flxanimate" url="https://github.com/FNF-CNE-Devs/flxanimate" />
 	<git name="hxdiscord_rpc" url="https://github.com/FNF-CNE-Devs/hxdiscord_rpc" />
-	<lib name="hxvlc" />
+	<lib name="hxvlc" skipDeps="true" />
 
 	<!-- Documentation and other features -->
 	<git name="away3d" url="https://github.com/FNF-CNE-Devs/away3d" />

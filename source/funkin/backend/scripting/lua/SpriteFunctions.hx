@@ -4,7 +4,7 @@ import flixel.text.FlxText.FlxTextBorderStyle;
 import flixel.text.FlxText;
 import funkin.game.PlayState;
 
-class SpriteFunctions {
+final class SpriteFunctions {
 	
 	public static function getSpriteFunctions(instance:MusicBeatState, ?script:Script):Map<String, Dynamic> {
 		return [

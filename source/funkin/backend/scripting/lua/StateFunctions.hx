@@ -3,7 +3,7 @@ package funkin.backend.scripting.lua;
 import funkin.menus.credits.CreditsMain;
 import funkin.menus.*;
 
-class StateFunctions {
+final class StateFunctions {
 	public static function getStateFunctions(?script:Script):Map<String, Dynamic> {
 		return [
 			"switchState" => function(state:String, ?data:Dynamic) {

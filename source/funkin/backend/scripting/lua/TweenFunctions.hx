@@ -3,7 +3,7 @@ package funkin.backend.scripting.lua;
 import flixel.tweens.*;
 import flixel.tweens.FlxTween.FlxTweenType;
 
-class TweenFunctions {
+final class TweenFunctions {
 	
 	public static function getTweenFunctions(instance:MusicBeatState, ?script:Script):Map<String, Dynamic> {
 		return [
