@@ -31,6 +31,7 @@ class CharacterEditor extends UIState {
 	// WINDOWS
 	public var characterPropertiresWindow:CharacterPropertiesWindow;
 	public var characterAnimsWindow:UIButtonList<CharacterAnimButtons>;
+	public var newCharacterAnimsWindow:NewCharacterAnimationsWindow;
 
 	// camera for the character itself so that it can be unzoomed/zoomed in again
 	public var charCamera:FlxCamera;
@@ -129,6 +130,21 @@ class CharacterEditor extends UIState {
 					{
 						label: "Stop Animation",
 						onSelect: _playback_stop_anim
+					}
+				]
+			},
+			{
+				label: "Animation",
+				childs: [
+					{
+						label: "Next Animation",
+						keybind: [S],
+						onSelect: _play_next_anim
+					},
+					{
+						label: "Previous Animation",
+						keybind: [W],
+						onSelect: _play_prev_anim
 					}
 				]
 			},
@@ -245,7 +261,14 @@ class CharacterEditor extends UIState {
 		var animOrder = character.getAnimOrder();
 		for (i=>anim in animOrder)
 			characterAnimsWindow.add(new CharacterAnimButtons(0,0, anim, character.getAnimOffset(anim)));
-		uiGroup.add(characterAnimsWindow);
+
+		newCharacterAnimsWindow = new NewCharacterAnimationsWindow(777, 209, 473, 180, "Character Animations", animOrder);
+		newCharacterAnimsWindow.addButton.callback = function() CharacterEditor.instance.createAnimWithUI();
+		newCharacterAnimsWindow.editButton.callback = function() CharacterEditor.instance.editAnimWithUI(newCharacterAnimsWindow.animDropdown.label.text);
+		newCharacterAnimsWindow.animDropdown.onChange = i -> playAnimation(newCharacterAnimsWindow.animDropdown.label.text);
+
+		//uiGroup.add(characterAnimsWindow);
+		uiGroup.add(newCharacterAnimsWindow);
 
 		playAnimation(animOrder[0]);
 
@@ -286,7 +309,17 @@ class CharacterEditor extends UIState {
 		if (character != null)
 			characterPropertiresWindow.characterInfo.text = '${character.getNameList().length} Animations\nFlipped: ${character.flipX}\nSprite: ${character.sprite}\nAnim: ${character.getAnimName()}\nOffset: (${character.frameOffset.x}, ${character.frameOffset.y})';
 
-		if (!(characterPropertiresWindow.hovered || characterAnimsWindow.hovered) && !characterAnimsWindow.dragging) {
+		if(newCharacterAnimsWindow.hovered) {
+			if (FlxG.mouse.wheel != 0){
+				var mScroll = FlxG.mouse.wheel;
+				if(mScroll < 0)
+					_play_next_anim(null);
+				else if(mScroll > 0)
+					_play_prev_anim(null);
+			}
+		}
+
+		if (!(characterPropertiresWindow.hovered || newCharacterAnimsWindow.hovered || characterAnimsWindow.hovered) && (!characterAnimsWindow.dragging)) {
 			if (FlxG.mouse.wheel != 0) {
 				zoom += 0.25 * FlxG.mouse.wheel;
 				__camZoom = Math.pow(2, zoom);
@@ -349,8 +382,12 @@ class CharacterEditor extends UIState {
 
 	function buildCharacter():String {
 		var charXML:Xml = character.buildXML([
+			/*
 			for (button in characterAnimsWindow.buttons.members)
 				button.anim
+			*/
+			for(anim in newCharacterAnimsWindow.animDropdown.options)
+				anim
 		]);
 
 		// clean
@@ -385,7 +422,7 @@ class CharacterEditor extends UIState {
 					character.animOffsets.set(anim, offsets.clone());
 					ghosts.setOffsets(anim, offsets.clone());
 				}
-
+				// TODO: target this to new character animations window
 				for (charButton in characterAnimsWindow.buttons.members)
 					charButton.updateInfo(charButton.anim, character.getAnimOffset(charButton.anim), ghosts.animGhosts[charButton.anim].visible);
 
@@ -445,8 +482,14 @@ class CharacterEditor extends UIState {
 		XMLUtil.addAnimToSprite(character, animData);
 		ghosts.createGhost(animData.name);
 		var newButton = new CharacterAnimButtons(0, 0, animData.name, FlxPoint.get(animData.x,animData.y));
-		if (animID == -1) characterAnimsWindow.add(newButton);
-		else characterAnimsWindow.insert(newButton, animID);
+		if (animID == -1){ 
+			characterAnimsWindow.add(newButton);
+			newCharacterAnimsWindow.animDropdown.options.push(animData.name);
+		}
+		else {
+			characterAnimsWindow.insert(newButton, animID);
+			newCharacterAnimsWindow.animDropdown.options.insert(animID, animData.name);
+		}
 
 		playAnimation(animData.name);
 
@@ -526,6 +569,20 @@ class CharacterEditor extends UIState {
 		for (button in characterAnimsWindow.buttons.members)
 			if (button.anim == anim) animButton = button;
 		animButton.updateInfo(anim, character.getAnimOffset(anim), ghost.visible);
+	}
+
+	function _play_next_anim(_)
+	{
+		if (character.getNameList().length != 0)
+			newCharacterAnimsWindow.animDropdown.setOption(FlxMath.wrap(newCharacterAnimsWindow.animDropdown.index + 1, 0,
+				newCharacterAnimsWindow.animDropdown.options.length - 1));
+	}
+
+	function _play_prev_anim(_)
+	{
+		if (character.getNameList().length != 0)
+			newCharacterAnimsWindow.animDropdown.setOption(FlxMath.wrap(newCharacterAnimsWindow.animDropdown.index - 1, 0,
+				newCharacterAnimsWindow.animDropdown.options.length - 1));
 	}
 
 	function _playback_play_anim(_) {

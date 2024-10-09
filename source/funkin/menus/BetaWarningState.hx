@@ -52,6 +52,10 @@ class BetaWarningState extends MusicBeatState {
 
 	private function goToTitle() {
 		MusicBeatState.skipTransIn = MusicBeatState.skipTransOut = true;
+		#if CHARACTER_EDITOR
+		FlxG.switchState(new funkin.editors.character.CharacterEditor('bf'));
+		#else
 		FlxG.switchState(new TitleState());
+		#end
 	}
 }
