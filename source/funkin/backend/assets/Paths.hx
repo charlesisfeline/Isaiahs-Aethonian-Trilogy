@@ -123,8 +123,18 @@ class Paths
 		return getPath('songs/$song/charts/$difficulty.json', null);
 	}
 
-	static public function character(character:String):String {
+	inline static public function character(character:String):String 
+	{
 		return getPath('data/characters/$character.xml', null);
+	}
+	
+	/**
+	 * Gets the name of a registered font.
+	 * @param font The font's path (if it's already passed as a font name, the same name will be returned)
+	 */
+	inline static public function getFontName(font:String)
+	{
+		return OpenFlAssets.exists(font, FONT) ? OpenFlAssets.getFont(font).fontName : font;
 	}
 
 	inline static public function font(key:String)
