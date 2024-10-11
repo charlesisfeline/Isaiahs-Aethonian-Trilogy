@@ -7,7 +7,7 @@ final class TweenFunctions {
 	
 	public static function getTweenFunctions(instance:MusicBeatState, ?script:Script):Map<String, Dynamic> {
 		return [
-			"tween" 	=> function(tweenName:String, object:String, property:String, value:Dynamic, duration:Float, ease:String, type:String, timeDelayed:Int = 0) {
+			"tween" 	=> function(tweenName:String, object:String, property:String, value:Dynamic, duration:Float, ease:String, type:String, timeDelayed:Float = 0.0) {
 				var obj = object.split(".");
 				var objectToTween:Dynamic = LuaTools.getObject(instance, obj[0]);
 				// Ex: tween("invert", "camHUD.flashSprite", "scaleX", getField("camHUD", "flashSprite.scaleX") * -1, 0.5)
@@ -46,7 +46,7 @@ final class TweenFunctions {
 					}
 				}));
 			},
-			"valueTween" => function(tweenName:String, startValue:Float, endValue:Float, duration:Float, ease:String, type:String, timeDelayed:Int = 0) {
+			"valueTween" => function(tweenName:String, startValue:Float, endValue:Float, duration:Float, ease:String, type:String, timeDelayed:Float = 0.0) {
 				instance.luaObjects["TWEEN"].set(tweenName, FlxTween.num(startValue, endValue, duration, 
 				{
 					ease: LuaTools.getEase(ease), 
@@ -79,7 +79,7 @@ final class TweenFunctions {
 	public static function getNotITGTweenFunctions(instance:MusicBeatState, ?script:Script):Map<String, Dynamic> {
 		if(!(instance is PlayState)) return null;
 		return [
-			"tweenNote" => function(tweenName:String, strumLine:Int, note:Int, property:String, value:Dynamic, duration:Float, ease:String, type:String, timeDelayed:Int = 0) {
+			"tweenNote" => function(tweenName:String, strumLine:Int, note:Int, property:String, value:Dynamic, duration:Float, ease:String, type:String, timeDelayed:Float = 0.0) {
 				var strumlineToUse:funkin.game.StrumLine = PlayState.instance.strumLines.members[strumLine];
 				var propertyToUse = {};
 				if(strumlineToUse == null) return;
