@@ -122,6 +122,31 @@ final class ReflectionFunctions
 					return null;
 				}
 				return LuaTools.setValueToVariable(cl, field, value);
+			},
+			"callMethod" => function(func:String, ?args:Array<Dynamic>) {
+				var obj = instance;
+				if(obj == null) return null;
+				var func = LuaTools.getValueFromVariable(obj, func);
+				if(!Reflect.isFunction(func)) return null;
+
+				return Reflect.callMethod(obj, func, args ?? []);
+			},
+			"callObjectMethod" => function(object:String, func:String, ?args:Array<Dynamic>) {
+				var obj:Dynamic = LuaTools.getObject(instance, object);
+				if(obj == null) return null;
+				var func = LuaTools.getValueFromVariable(obj, func);
+				if(!Reflect.isFunction(func)) return null;
+
+				return Reflect.callMethod(obj, func, args ?? []);
+			},
+			"callClassMethod" => function(className:String, func:String, ?args:Array<Dynamic>) {
+				var cl:Class<Dynamic> = Type.resolveClass(className);
+				if(cl == null) return null;
+
+				var func = LuaTools.getValueFromVariable(cl, func);
+				if(!Reflect.isFunction(func)) return null;
+
+				return Reflect.callMethod(cl, func, args ?? []);
 			}
 		];
 	}

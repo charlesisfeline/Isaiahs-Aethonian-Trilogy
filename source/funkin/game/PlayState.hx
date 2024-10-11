@@ -639,7 +639,7 @@ class PlayState extends MusicBeatState
 		for(noteType in SONG.noteTypes) {
 			var scriptPath = Paths.script('data/notes/${noteType}');
 			if (Assets.exists(scriptPath) && !scripts.contains(scriptPath)) {
-				var script = Script.create(scriptPath);
+				var script = Script.create(scriptPath, #if ENABLE_LUA true #else false #end);
 				if (!(script is DummyScript)) {
 					scripts.add(script);
 					script.load();

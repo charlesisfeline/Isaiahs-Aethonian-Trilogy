@@ -7,7 +7,7 @@ import flixel.util.FlxTimer;
 final class UtilFunctions {
 	public static function getUtilFunctions(instance:MusicBeatState, ?script:Script):Map<String, Dynamic> {
 		return [
-			"callStateFunction" => function(func:String, ?args:Array<Dynamic>) {
+			"callScriptFunction" => function(func:String, ?args:Array<Dynamic>) {
 				instance.call(func, args);
 				//PlayState.instance.scripts.call(func, args);
 				return;
