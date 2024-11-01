@@ -1,7 +1,0 @@
-<!DOCTYPE codename-mod-credits>
-<!-- TEMPLATE FOR CUSTOM CREDITS!!! -->
-<menu name="BIrd Engine" desc="Dev Team">
-	<!-- \/ You can also set the portrait shader as false as you can see below in the github one -->
-	<credit name="ScridleyArts" desc="FNF Vs. SC Mod Director | Artist" icon="scrid" size="130" url="https://x.com/ScridleyR"/>
-	<github user="Jamextreme140" customName="Jamextreme140" desc="The bitch who made this sub-engine" size="100" portrait="false" color="#808080"/>
-</menu>

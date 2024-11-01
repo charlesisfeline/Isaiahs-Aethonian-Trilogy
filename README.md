@@ -26,8 +26,8 @@ Also, the command `.\bird test` uses the source assets folder instead of the exp
 ## Codename Engine
 
 Codename Engine is a new Friday Night Funkin' Engine aimed at simplifying modding, along with extensiblity and ease of use.<br>
-Make sure to read the wiki and join the Discord server linked there!<br>
-#### It includes many new features, as seen [here](FEATURES.md)<br>
+### Before making issues or need help with something, check the official website [HERE](https://fnf-cne-devs.github.io/) (it contains a wiki of how to mod with EXAMPLES, an api, lists of mods made with Codename Engine and more)!!!
+#### The Base Engine includes many new features, as seen [here](FEATURES.md)<br>
 #### Wanna see the new features added in the most recent update? Click [here](PATCHNOTES.md)<br>
 
 ## How to download
