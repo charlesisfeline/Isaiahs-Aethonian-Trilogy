@@ -218,7 +218,10 @@ class PlayState extends MusicBeatState
 	 * Whether or not to bop the icons on beat.
 	 */
 	public var doIconBop:Bool = true;
-
+	/**
+	 * Whether or not to flip the health bar (change it from having the opponent on the left to the opponent on the right, and vice versa for the player).
+	 */
+	 public var flipHealthbar:Bool = false;
 	/**
 	 * Whenever cam zooming is enabled, enables on a note hit if not cancelled.
 	 */
@@ -455,6 +458,27 @@ class PlayState extends MusicBeatState
 	 * Group containing all of the combo sprites.
 	 */
 	public var comboGroup:RotatingSpriteGroup;
+	/**
+	 * Whenever the Rating sprites should be shown or not.
+	 *
+	 * NOTE: This is just a default value for the final value, the final value can be changed through notes hit events.
+	 */
+	 public var defDisplayRating:Bool = true;
+	 /**
+	  * Whenever the Combo sprite should be shown or not (like old Week 7 patches).
+	  *
+	  * NOTE: This is just a default value for the final value, the final value can be changed through notes hit events.
+	  */
+	 public var defDisplayCombo:Bool = false;
+	 /**
+	  * Minimum Combo Count to display the combo digits. Anything less than 0 means it won't be shown.
+	  */
+	 public var minDigitDisplay:Int = 10;
+	 /**
+	  * If the image with "COMBO" written on it should be displayed (like old Week 7 patches)
+	  * PS: this shit's useless keep it off if you don't wanna clutter the UI
+	  */
+	 public var comboSpriteOnPopups: Bool = false;
 	/**
 	 * Array containing all of the note types names.
 	 */
@@ -737,6 +761,7 @@ class PlayState extends MusicBeatState
 		iconP2 = new HealthIcon(dad != null ? dad.getIcon() : "face", false);
 		for(icon in [iconP1, iconP2]) {
 			icon.y = healthBar.y - (icon.height / 2);
+			icon.flipX = flipHealthbar;
 			add(icon);
 		}
 
@@ -756,6 +781,8 @@ class PlayState extends MusicBeatState
 
 		for(e in [healthBar, healthBarBG, iconP1, iconP2, scoreTxt, missesTxt, accuracyTxt])
 			e.cameras = [camHUD];
+
+		healthBar.flipX = healthBarBG.flipX = flipHealthbar;
 		#end
 
 		startingSong = true;
@@ -1202,8 +1229,8 @@ class PlayState extends MusicBeatState
 
 		var center:Float = healthBar.x + healthBar.width * FlxMath.remapToRange(healthBar.percent, 0, 100, 1, 0);
 
-		iconP1.x = center - iconOffset;
-		iconP2.x = center - (iconP2.width - iconOffset);
+		iconP1.x = center - (flipHealthbar ? (iconP1.width - iconOffset) : iconOffset);
+		iconP2.x = center - (flipHealthbar ? iconOffset : (iconP2.width - iconOffset));
 
 		health = FlxMath.bound(health, 0, maxHealth);
 
@@ -1652,9 +1679,9 @@ class PlayState extends MusicBeatState
 
 		var event:NoteHitEvent;
 		if (strumLine != null && !strumLine.cpu)
-			event = EventManager.get(NoteHitEvent).recycle(false, !note.isSustainNote, !note.isSustainNote, note, strumLine.characters, true, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, score, note.isSustainNote ? null : accuracy, 0.023, daRating, Options.splashesEnabled && !note.isSustainNote && daRating == "sick");
+			event = EventManager.get(NoteHitEvent).recycle(false, !note.isSustainNote, !note.isSustainNote, null, defDisplayRating, defDisplayCombo, note, strumLine.characters, true, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, score, note.isSustainNote ? null : accuracy, 0.023, daRating, Options.splashesEnabled && !note.isSustainNote && daRating == "sick");
 		else
-			event = EventManager.get(NoteHitEvent).recycle(false, false, false, note, strumLine.characters, false, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, 0, null, 0, daRating, false);
+			event = EventManager.get(NoteHitEvent).recycle(false, false, false, null, defDisplayRating, defDisplayCombo, note, strumLine.characters, false, note.noteType, note.animSuffix.getDefault(note.strumID < strumLine.members.length ? strumLine.members[note.strumID].animSuffix : strumLine.animSuffix), "game/score/", "", note.strumID, 0, null, 0, daRating, false);
 		event.deleteNote = !note.isSustainNote; // work around, to allow sustain notes to be deleted
 		event = scripts.event(strumLine != null && !strumLine.cpu ? "onPlayerHit" : "onDadHit", event);
 		strumLine.onHit.dispatch(event);
@@ -1673,7 +1700,8 @@ class PlayState extends MusicBeatState
 				if (event.showRating || (event.showRating == null && event.player))
 				{
 					displayCombo(event);
-					displayRating(event.rating, event);
+					if (event.displayRating)
+						displayRating(event.rating, event);
 					ratingNum += 1;
 				}
 			}
@@ -1731,57 +1759,74 @@ class PlayState extends MusicBeatState
 	}
 
 	public function displayCombo(?evt:NoteHitEvent = null):Void {
+		if (minDigitDisplay >= 0 && (combo == 0 || combo >= minDigitDisplay))
+		{
+			var pre:String = evt != null ? evt.ratingPrefix : "";
+			var suf:String = evt != null ? evt.ratingSuffix : "";
+
+			if (evt.displayCombo)
+			{
+				var separatedScore:String = Std.string(combo).addZeros(3);
+
+				if (combo == 0 || combo >= minDigitDisplay)
+				{
+					if (comboSpriteOnPopups)
+						displayComboSprite(evt);
+
+					var separatedScore:String = Std.string(combo).addZeros(3);
+
+					for (i in 0...separatedScore.length)
+					{
+						var numScore:FlxSprite = comboGroup.recycleLoop(FlxSprite)
+							.loadAnimatedGraphic(Paths.image('${pre}num${separatedScore.charAt(i)}${suf}'));
+						numScore.resetSprite(comboGroup.x + (43 * i) - 90, comboGroup.y + 80);
+						if (evt != null)
+						{
+							numScore.antialiasing = evt.numAntialiasing;
+							numScore.scale.set(evt.numScale, evt.numScale);
+						}
+						numScore.updateHitbox();
+
+						numScore.acceleration.y = FlxG.random.int(200, 300);
+						numScore.velocity.y -= FlxG.random.int(140, 160);
+						numScore.velocity.x = FlxG.random.float(-5, 5);
+
+						FlxTween.tween(numScore, {alpha: 0}, 0.2, {
+							onComplete: function(tween:FlxTween)
+							{
+								numScore.kill();
+							},
+							startDelay: Conductor.crochet * 0.002
+						});
+					}
+				}
+			}
+		}
+	}
+
+	private function displayComboSprite(evt: NoteHitEvent = null):Void {
 		var pre:String = evt != null ? evt.ratingPrefix : "";
 		var suf:String = evt != null ? evt.ratingSuffix : "";
 
-		var separatedScore:String = Std.string(combo).addZeros(3);
+		var comboSpr:FlxSprite = comboGroup.recycleLoop(FlxSprite).loadAnimatedGraphic(Paths.image('${pre}combo${suf}'));
+		comboSpr.resetSprite(comboGroup.x, comboGroup.y);
+		comboSpr.acceleration.y = 600;
+		comboSpr.velocity.y -= 150;
+		comboSpr.velocity.x += FlxG.random.int(1, 10);
 
-		if (combo == 0 || combo >= 10) {
-			if (combo >= 10) {
-				var comboSpr:FlxSprite = comboGroup.recycleLoop(FlxSprite).loadAnimatedGraphic(Paths.image('${pre}combo${suf}'));
-				comboSpr.resetSprite(comboGroup.x, comboGroup.y);
-				comboSpr.acceleration.y = 600;
-				comboSpr.velocity.y -= 150;
-				comboSpr.velocity.x += FlxG.random.int(1, 10);
-
-				if (evt != null) {
-					comboSpr.scale.set(evt.ratingScale, evt.ratingScale);
-					comboSpr.antialiasing = evt.ratingAntialiasing;
-				}
-				comboSpr.updateHitbox();
-
-				FlxTween.tween(comboSpr, {alpha: 0}, 0.2, {
-					onComplete: function(tween:FlxTween)
-					{
-						comboSpr.kill();
-					},
-					startDelay: Conductor.crochet * 0.001
-				});
-			}
-
-			for (i in 0...separatedScore.length)
-			{
-				var numScore:FlxSprite = comboGroup.recycleLoop(FlxSprite).loadAnimatedGraphic(Paths.image('${pre}num${separatedScore.charAt(i)}${suf}'));
-				numScore.resetSprite(comboGroup.x + (43 * i) - 90, comboGroup.y + 80);
-				if (evt != null) {
-					numScore.antialiasing = evt.numAntialiasing;
-					numScore.scale.set(evt.numScale, evt.numScale);
-				}
-				numScore.updateHitbox();
-
-				numScore.acceleration.y = FlxG.random.int(200, 300);
-				numScore.velocity.y -= FlxG.random.int(140, 160);
-				numScore.velocity.x = FlxG.random.float(-5, 5);
-
-				FlxTween.tween(numScore, {alpha: 0}, 0.2, {
-					onComplete: function(tween:FlxTween)
-					{
-						numScore.kill();
-					},
-					startDelay: Conductor.crochet * 0.002
-				});
-			}
+		if (evt != null) {
+			comboSpr.scale.set(evt.ratingScale, evt.ratingScale);
+			comboSpr.antialiasing = evt.ratingAntialiasing;
 		}
+		comboSpr.updateHitbox();
+
+		FlxTween.tween(comboSpr, {alpha: 0}, 0.2, {
+			onComplete: function(tween:FlxTween)
+			{
+				comboSpr.kill();
+			},
+			startDelay: Conductor.crochet * 0.001
+		});
 	}
 
 	public inline function deleteNote(note:Note)

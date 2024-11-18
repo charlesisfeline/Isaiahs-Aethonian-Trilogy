@@ -64,6 +64,7 @@ class Charter extends UIState {
 	public var noteDeleteAnims:CharterDeleteAnim;
 
 	public var strumlineInfoBG:FlxSprite;
+	public var liveChartRecording:FlxSprite;
 	public var strumlineAddButton:CharterStrumlineButton;
 	public var strumlineLockButton:CharterStrumlineButton;
 
@@ -87,6 +88,9 @@ class Charter extends UIState {
 	public var uiCamera:FlxCamera;
 	public var selectionBox:UISliceSprite;
 	public var autoSaveNotif:CharterAutoSaveUI;
+
+	public var isLiveCharting:Bool = false;
+
 	public static var autoSaveTimer:Float = 0;
 
 	public static var selection:Selection;
@@ -240,6 +244,20 @@ class Charter extends UIState {
 						keybind: [CONTROL, SHIFT, ENTER],
 						onSelect: _chart_playtest_opponent_here
 					},
+					{
+						label: "Record live charting",
+						color: 0xFFA91734,
+						icon: 7,
+						keybind: [CONTROL, R],
+						onSelect: _chart_live
+					},
+					{
+						label: "Record live charting here",
+						color: 0xFFA91734,
+						icon: 7,
+						keybind: [CONTROL, SHIFT, R],
+						onSelect: _chart_live_here
+					},
 					null,
 					{
 						label: 'Enable scripts during playtesting',
@@ -295,6 +313,21 @@ class Charter extends UIState {
 						label: 'Low Detail Waveforms',
 						onSelect: _view_switchWaveformDetail,
 						icon: Options.charterLowDetailWaveforms ? 1 : 0
+					},
+					{
+						label: "Scroll left",
+						keybind: [SHIFT, LEFT],
+						onSelect: _view_scrollleft
+					},
+					{
+						label: "Scroll right",
+						keybind: [SHIFT, RIGHT],
+						onSelect: _view_scrollright
+					},
+					{
+						label: "Reset scroll",
+						keybind: [SHIFT, DOWN],
+						onSelect: _view_scrollreset
 					}
 				]
 			},
@@ -341,6 +374,7 @@ class Charter extends UIState {
 					null,
 					{
 						label: "↑ Speed 25%",
+						keybind: [PERIOD],
 						onSelect: _playback_speed_raise
 					},
 					{
@@ -349,6 +383,7 @@ class Charter extends UIState {
 					},
 					{
 						label: "↓ Speed 25%",
+						keybind: [COMMA],
 						onSelect: _playback_speed_lower
 					},
 					null,
@@ -362,6 +397,22 @@ class Charter extends UIState {
 						keybind: [D],
 						onSelect: _playback_forward
 					},
+					{
+						label: "Go to start of section",
+						keybind: [SHIFT, S],
+						onSelect: _playback_section_start
+					},
+					null,
+					{
+						label: "Go back a step",
+						keybind: [W],
+						onSelect: _playback_back_step
+					},
+					{
+						label: "Go forward a step",
+						keybind: [S],
+						onSelect: _playback_forward_step
+					},
 					null,
 					{
 						label: "Metronome",
@@ -369,7 +420,7 @@ class Charter extends UIState {
 						icon: Options.charterMetronomeEnabled ? 1 : 0
 					},
 					{
-						label: "Visual metronome"
+						label: "this button wastes your time" // :troll:
 					},
 				]
 			}
@@ -453,6 +504,14 @@ class Charter extends UIState {
 		autoSaveNotif = new CharterAutoSaveUI(20, strumlineInfoBG.y + strumlineInfoBG.height + 20);
 		uiGroup.add(autoSaveNotif);
 
+		liveChartRecording = new UISprite();
+		liveChartRecording.loadGraphic(Paths.image('editors/charter/recording'), true, 78, 78);
+		liveChartRecording.animation.add("off", [0]);
+		liveChartRecording.animation.add("on", [1]);
+		liveChartRecording.x = (FlxG.width - liveChartRecording.frameWidth - scrollBar.width) - 20;
+		liveChartRecording.y = (strumlineInfoBG.y + strumlineInfoBG.height) + 20;
+		liveChartRecording.scrollFactor.set();
+
 		strumlineAddButton = new CharterStrumlineButton("editors/new", "Create New");
 		strumlineAddButton.onClick = createStrumWithUI;
 		strumlineAddButton.animationOnClick = false;
@@ -468,6 +527,7 @@ class Charter extends UIState {
 
 		strumlineAddButton.cameras = strumlineLockButton.cameras = [charterCamera];
 		strumlineInfoBG.cameras = [charterCamera];
+		liveChartRecording.cameras = [charterCamera];
 		strumLines.cameras = [charterCamera];
 
 		addEventSpr = new CharterEventAdd();
@@ -485,6 +545,7 @@ class Charter extends UIState {
 		add(notesGroup);
 		add(selectionBox);
 		add(strumlineInfoBG);
+		add(liveChartRecording);
 		add(strumlineLockButton);
 		add(strumlineAddButton);
 		add(strumLines);
@@ -493,6 +554,8 @@ class Charter extends UIState {
 		add(noteTypeText);
 		// add the ui group
 		add(uiGroup);
+
+		liveChartRecording.animation.play("off");
 
 		loadSong();
 
@@ -523,6 +586,17 @@ class Charter extends UIState {
 			Framerate.codenameBuildField.alpha = 1;
 		}
 		super.destroy();
+	}
+
+	public function recordingDisplay(isIt:Bool=true) {
+		switch(isIt) {
+			case true:
+				charterBG.color = 0xFF0B0B0B;
+				liveChartRecording.animation.play("on");
+			case false:
+				charterBG.color = 0xFF181818;
+				liveChartRecording.animation.play("off");
+		}
 	}
 
 	public function loadSong() {
@@ -1151,13 +1225,50 @@ class Charter extends UIState {
 		updateNoteLogic(elapsed);
 		updateAutoSaving(elapsed);
 
+		// TEST CODE -----------------------------
+
+		if (isLiveCharting) {
+			if (controls.LEFT) {
+				var leftrec = new CharterNote();
+				leftrec.updatePos(1.0, 0, 0, 0);
+				add(leftrec);
+				notesGroup.add(leftrec);
+			} else if (controls.DOWN) {
+				var downrec = new CharterNote();
+				downrec.updatePos(1.0, 1, 0, 0);
+				add(downrec);
+				notesGroup.add(downrec);
+			} else if (controls.UP) {
+				var uprec = new CharterNote();
+				uprec.updatePos(1.0, 2, 0, 0);
+				add(uprec);
+				notesGroup.add(uprec);
+			} else if (controls.RIGHT) {
+				var rightrec = new CharterNote();
+				rightrec.updatePos(1.0, 3, 0, 0);
+				add(rightrec);
+				notesGroup.add(rightrec);
+			} else if (controls.ACCEPT) {
+				trace("hey dummy I'm pressing accept");
+				FlxG.sound.music.pause();
+				vocals.pause();
+				for (strumLine in strumLines.members)
+					strumLine.vocals.pause();
+	
+				isLiveCharting = false;
+				recordingDisplay(false);
+			}
+		}
+	
+		// TEST CODE -----------------------------
+
 		if (FlxG.sound.music.playing || __firstFrame) {
 			gridBackdrops.conductorSprY = curStepFloat * 40;
 		} else {
 			gridBackdrops.conductorSprY = lerp(gridBackdrops.conductorSprY, curStepFloat * 40, __firstFrame ? 1 : 1/3);
 		}
 		charterCamera.scroll.set(
-			((((40*4) * gridBackdrops.strumlinesAmount) - FlxG.width) / 2),
+			lerp(charterCamera.scroll.x, ((( (40*4) * gridBackdrops.strumlinesAmount) - FlxG.width) / 2) + sideScroll, __firstFrame ? 1 : 1/3),
 			gridBackdrops.conductorSprY - (FlxG.height * 0.5)
 		);
 
@@ -1208,14 +1319,18 @@ class Charter extends UIState {
 			if(FlxG.keys.justPressed.ANY && !strumLines.isDragging && this.currentFocus == null)
 				UIUtil.processShortcuts(topMenu);
 
-			if (FlxG.keys.pressed.CONTROL) {
-				if (FlxG.mouse.wheel != 0) {
-					zoom += 0.25 * FlxG.mouse.wheel;
-					__camZoom = Math.pow(2, zoom);
-				}
-			} else {
-				if (!FlxG.sound.music.playing) {
-					Conductor.songPosition -= (__crochet * FlxG.mouse.wheel) - Conductor.songOffset;
+			if (!topMenuSpr.anyMenuOpened) {
+				if (FlxG.keys.pressed.CONTROL) {
+					if (FlxG.mouse.wheel != 0) {
+						zoom += 0.25 * FlxG.mouse.wheel;
+						__camZoom = Math.pow(2, zoom);
+					}
+				} else if (FlxG.keys.pressed.SHIFT) {
+					if (FlxG.mouse.wheel != 0) {
+						sideScroll -= 40 * FlxG.mouse.wheel;
+					}
+				} else {
+					if (!FlxG.sound.music.playing) Conductor.songPosition -= (__crochet * FlxG.mouse.wheel) - Conductor.songOffset;
 				}
 			}
 		}
@@ -1275,6 +1390,11 @@ class Charter extends UIState {
 	}
 	function set___camZoom(val:Float) {
 		return __camZoom = FlxMath.bound(val, 0.1, 3);
+	}
+
+	var sideScroll(default, set):Float = 0;
+	function set_sideScroll(val:Float) {
+		return sideScroll = FlxMath.bound(val, -((40*Charter.keyCount) * gridBackdrops.strumlinesAmount) / 2, ((40*Charter.keyCount) * gridBackdrops.strumlinesAmount) / 2);
 	}
 
 	// TOP MENU OPTIONS
@@ -1421,12 +1541,16 @@ class Charter extends UIState {
 		deleteSelection(selection, false);
 	}
 
-	function _edit_delete(_) {
-		if (selection == null || selection.length == 0) return;
-		selection.loop((n:CharterNote) -> {
-			noteDeleteAnims.deleteNotes.push({note: n, time: noteDeleteAnims.deleteTime});
-		});
-		selection = deleteSelection(selection, true);
+	function _edit_delete(_)
+	{
+		if (!isLiveCharting)
+		{
+			if (selection == null || selection.length == 0) return;
+			selection.loop((n:CharterNote) -> {
+				noteDeleteAnims.deleteNotes.push({note: n, time: noteDeleteAnims.deleteTime});
+			});
+			selection = deleteSelection(selection, true);
+		}
 	}
 
 	function _edit_undo(_) {
@@ -1521,13 +1645,71 @@ class Charter extends UIState {
 	}
 
 	inline function _chart_playtest(_)
-		playtestChart(0, false);
+		if (!isLiveCharting)
+			playtestChart(0, false);
 	inline function _chart_playtest_here(_)
-		playtestChart(Conductor.songPosition, false, true);
+		if (!isLiveCharting)
+			playtestChart(Conductor.songPosition, false, true);
 	inline function _chart_playtest_opponent(_)
-		playtestChart(0, true);
+		if (!isLiveCharting)
+			playtestChart(0, true);
 	inline function _chart_playtest_opponent_here(_)
-		playtestChart(Conductor.songPosition, true, true);
+		if (!isLiveCharting)
+			playtestChart(Conductor.songPosition, true, true);
+	inline function _chart_live(_)
+	{
+		if (!isLiveCharting)
+		{
+			trace("make this");
+
+			isLiveCharting = true;
+			Conductor.songPosition = 0; // fuck you
+
+			// make SL selection functionality
+			// pause until a SL was selected
+			// start countdown
+			// only after all that can it...
+
+			recordingDisplay(true);
+
+			FlxG.sound.music.play();
+			vocals.play();
+
+			vocals.time = FlxG.sound.music.time = Conductor.songPosition + Conductor.songOffset * 2;
+			for (strumLine in strumLines.members)
+			{
+				strumLine.vocals.play();
+				strumLine.vocals.time = vocals.time;
+			}
+		}
+	}
+
+	inline function _chart_live_here(_)
+	{
+		if (!isLiveCharting)
+		{
+			trace("and this too");
+
+			isLiveCharting = true;
+
+			// make SL selection functionality
+			// pause until a SL was selected
+			// start countdown
+			// only after all that can it...
+
+			recordingDisplay(true);
+
+			FlxG.sound.music.play();
+			vocals.play();
+			vocals.time = FlxG.sound.music.time = Conductor.songPosition + Conductor.songOffset * 2;
+			for (strumLine in strumLines.members)
+			{
+				strumLine.vocals.play();
+				strumLine.vocals.time = vocals.time;
+			}
+		}
+	}
+
 	function _chart_enablescripts(t) {
 		t.icon = (Options.charterEnablePlaytestScripts = !Options.charterEnablePlaytestScripts) ? 1 : 0;
 	}
@@ -1579,6 +1761,18 @@ class Charter extends UIState {
 		if (FlxG.sound.music.playing) return;
 		Conductor.songPosition += (Conductor.beatsPerMeasure * __crochet);
 	}
+	function _playback_section_start(_) {
+		if(FlxG.sound.music.playing) return;
+		Conductor.songPosition = (Conductor.beatsPerMeasure * (60000 / Conductor.bpm)) * curMeasure;
+	}
+	function _playback_back_step(_) {
+		if (FlxG.sound.music.playing) return;
+		Conductor.songPosition -= Conductor.stepCrochet;
+	}
+	function _playback_forward_step(_) {
+		if (FlxG.sound.music.playing) return;
+		Conductor.songPosition += Conductor.stepCrochet;
+	}
 	function _song_start(_) {
 		if (FlxG.sound.music.playing) return;
 		Conductor.songPosition = 0;
@@ -1612,12 +1806,32 @@ class Charter extends UIState {
 		for (shader in waveformHandler.waveShaders) shader.data.lowDetail.value = [Options.charterLowDetailWaveforms];
 	}
 	
-	inline function _snap_increasesnap(_) changequant(1);
-	inline function _snap_decreasesnap(_) changequant(-1);
-	inline function _snap_resetsnap(_) setquant(16);
+	function _view_scrollleft(_) {
+		sideScroll -= 40;
+	}
+	function _view_scrollright(_) {
+		sideScroll += 40;
+	}
+	function _view_scrollreset(_) {
+		sideScroll = 0;
+	}
+	
+	inline function _snap_increasesnap(_) if (!isLiveCharting) changequant(1);
+	inline function _snap_decreasesnap(_) if (!isLiveCharting) changequant(-1);
+	inline function _snap_resetsnap(_) if (!isLiveCharting) setquant(16);
 
-	inline function changequant(change:Int) {quant = quants[FlxMath.wrap(quants.indexOf(quant) + change, 0, quants.length-1)]; buildSnapsUI();};
-	inline function setquant(newquant:Int) {quant = newquant; buildSnapsUI();}
+	inline function changequant(change:Int) {
+		if (!isLiveCharting) {
+			quant = quants[FlxMath.wrap(quants.indexOf(quant) + change, 0, quants.length-1)];
+			buildSnapsUI();
+		}
+	};
+	inline function setquant(newquant:Int) {
+		if (!isLiveCharting) {
+			quant = newquant;
+			buildSnapsUI();
+		}
+	}
 
 	function buildSnapsUI():Array<UIContextMenuOption> {
 		var snapsTopButton:UITopMenuButton = topMenuSpr == null ? null : cast topMenuSpr.members[snapIndex];
@@ -1651,13 +1865,15 @@ class Charter extends UIState {
 	}
 
 	inline function _note_addsustain(t)
-		changeNoteSustain(1);
+		if (!isLiveCharting)
+			changeNoteSustain(1);
 
 	inline function _note_subtractsustain(t)
-		changeNoteSustain(-1);
+		if (!isLiveCharting)
+			changeNoteSustain(-1);
 
 	function _note_selectall(_) {
-		selection = [for (note in notesGroup.members) note];
+		selection = cast notesGroup.members.copy();
 	}
 
 	function _note_selectmeasure(_) {
@@ -1813,8 +2029,10 @@ class Charter extends UIState {
 		refreshBPMSensitive();
 	}
 
-	public inline function hitsoundsEnabled(id:Int)
-		return strumLines.members[id] != null && strumLines.members[id].hitsounds;
+	public inline function hitsoundsEnabled(id:Int) {
+		if (!isLiveCharting) return strumLines.members[id] != null && strumLines.members[id].hitsounds;
+		else rreturn false;
+	}
 
 	public inline function __fixSelection(selection:Selection):Selection {
 		var newSelection:Selection = new Selection();

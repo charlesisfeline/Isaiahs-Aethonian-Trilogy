@@ -16,12 +16,12 @@ class OptionsMenu extends TreeMenu {
 		},
 		{
 			name: 'Gameplay >',
-			desc: 'Change Gameplay options such as Downscroll, Scroll Speed, Naughtyness...',
+			desc: 'Change Gameplay options such as Downscroll, Ghost Tapping, Naughtiness...',
 			state: GameplayOptions
 		},
 		{
 			name: 'Appearance >',
-			desc: 'Change Appearance options such as Flashing menus...',
+			desc: 'Change Appearance options such as Antialiasing...',
 			state: AppearanceOptions
 		},
 		{
@@ -39,7 +39,6 @@ class OptionsMenu extends TreeMenu {
 		DiscordUtil.call("onMenuLoaded", ["Options Menu"]);
 
 		var bg:FlxSprite = new FlxSprite(-80).loadAnimatedGraphic(Paths.image('menus/menuBGBlue'));
-		// bg.scrollFactor.set();
 		bg.scale.set(1.15, 1.15);
 		bg.updateHitbox();
 		bg.screenCenter();
@@ -65,19 +64,28 @@ class OptionsMenu extends TreeMenu {
 			}
 		})]);
 
-		var xmlPath = Paths.xml("config/options");
-		for(source in [funkin.backend.assets.AssetsLibraryList.AssetSource.SOURCE, funkin.backend.assets.AssetsLibraryList.AssetSource.MODS]) {
-			if (Paths.assetsTree.existsSpecific(xmlPath, "TEXT", source)) {
+		var overridedMods:Array<String> = [];
+
+		for (i in funkin.backend.assets.ModsFolder.getLoadedMods()) {
+			var xmlPath = Paths.xml('config/options/LIB_$i');
+
+			if(overridedMods.contains(i))
+				continue;
+
+			if (Paths.assetsTree.existsSpecific(xmlPath, "TEXT")) {
 				var access:Access = null;
 				try {
-					access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT", source)));
+					access = new Access(Xml.parse(Paths.assetsTree.getSpecificAsset(xmlPath, "TEXT")));
 				} catch(e) {
 					Logs.trace('Error while parsing options.xml: ${Std.string(e)}', ERROR);
 				}
-
 				if (access != null)
+				{
+					var firstElement = access.x.firstElement();
+					if(firstElement.exists("override")) overridedMods.push(firstElement.get("override"));
 					for(o in parseOptionsFromXML(access))
 						main.add(o);
+				}
 			}
 		}
 

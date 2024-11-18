@@ -2,7 +2,7 @@ package funkin.options.categories;
 
 class AppearanceOptions extends OptionsScreen {
 	public override function new() {
-		super("Appearance", "Change Appearance options such as Flashing menus...");
+		super("Appearance", "Change Appearance options such as Antialiasing...");
 		add(new NumOption(
 			"Framerate",
 			"Pretty self explanatory, isn't it?",
@@ -17,19 +17,19 @@ class AppearanceOptions extends OptionsScreen {
 			"antialiasing"));
 		add(new Checkbox(
 			"Colored Healthbar",
-			"If unchecked, the game will use the orginal red/green health bar from the week 6 fnf game.",
+			"If unchecked, will use the Red & Green colors for the health bar, just like in base game.",
 			"colorHealthBar"));
 		add(new Checkbox(
 			"Pixel Perfect Effect",
-			"If checked, Week 6 will have a pixel perfect effect to it enabled, aligning every pixel on the screen.",
+			"If checked, Week 6 will have a pixel-perfect effect to it enabled, aligning every pixel on the screen, just like in base game.",
 			"week6PixelPerfect"));
 		add(new Checkbox(
 			"Gameplay Shaders",
-			"If unchecked, gameplay shaders (visual effects like Thorns's Chromatic Aberration) wont be loaded; this may be helpful on weak devices.",
+			"If unchecked, gameplay shaders (visual effects like Thorns' chromatic aberration) won't be loaded; this may be helpful on weak devices.",
 			"gameplayShaders"));
 		add(new Checkbox(
-			"Flashing Menu",
-			"If unchecked, will disable menu flashing when you select an option in the Main Menu, and other flashes will be slower.",
+			"Flashing Lights",
+			"If unchecked, will disable flashing lights that happen when you select an option in the Main Menu, and other flashes will be slower.",
 			"flashingMenu"));
 		add(new Checkbox(
 			"Low Memory Mode",
@@ -47,6 +47,18 @@ class AppearanceOptions extends OptionsScreen {
 			"Auto Pause",
 			"If checked, switching windows will pause the game.",
 			"autoPause"));
+		add(new Checkbox(
+			"Use Inactive Volume",
+			"If checked, the game's volume will turn down when the window is inactive.",
+			"inactiveVolumeEnabled"));
+		add(new NumOption(
+			"Inactive Volume",
+			"Changes the volume percentage that will be used instead of the normal volume, when the window is inactive.",
+			0,
+			100,
+			2,
+			"inactiveVolume",
+			null));
 	}
 
 	private function __changeFPS(change:Float) {
