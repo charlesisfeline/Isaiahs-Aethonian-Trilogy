@@ -40,7 +40,7 @@ _**QOL = Quality of Life**_
         - Allows you to use for example `boyfriend` instead of `PlayState.boyfriend` or `game.boyfriend`, for smaller and easier to comprehend code.
         - Allows you to use `@:bypassAccessor`
         - Allows you to use maps
-	- Support for `linc-luajit`, a LuaJIT bindings to allow Lua to make modding more simplified.
+	- Support for `linc-luajit`, a LuaJIT bindings to allow Lua to make modding more simplified. (not on base cne but why not)
 		- Same function call system from HScript
     - Usage of XML files for Characters instead of hardcoding them.
         - Animation names, prefixes, indices, etc... can be set in the XML without an additional line of code.
