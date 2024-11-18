@@ -38,10 +38,6 @@ final class NoteHitEvent extends CancellableEvent {
 	  */
 	 public var displayCombo:Bool;
 	/**
-	 * Whenever ratings should be shown or not.
-	 */
-	public var showRating:Null<Bool> = null;
-	/**
 	 * Note that has been pressed
 	 */
 	public var note:Note;

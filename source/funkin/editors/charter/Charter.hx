@@ -1394,7 +1394,7 @@ class Charter extends UIState {
 
 	var sideScroll(default, set):Float = 0;
 	function set_sideScroll(val:Float) {
-		return sideScroll = FlxMath.bound(val, -((40*Charter.keyCount) * gridBackdrops.strumlinesAmount) / 2, ((40*Charter.keyCount) * gridBackdrops.strumlinesAmount) / 2);
+		return sideScroll = FlxMath.bound(val, -((40*4) * gridBackdrops.strumlinesAmount) / 2, ((40*4) * gridBackdrops.strumlinesAmount) / 2);
 	}
 
 	// TOP MENU OPTIONS
