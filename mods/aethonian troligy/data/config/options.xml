@@ -1,0 +1,27 @@
+<!DOCTYPE codename-mod-options>
+<menu name="Aethonian Options" desc="idk lol">
+    <checkbox id="botplayOption" name="Botplay" desc="Enables botplay!" />
+    <checkbox id="colouredBar" name="Colored Time Bar"
+        desc="Makes the time bar color based on the opponent's health bar color." />
+    <menu name="Playback Rate" desc="Options for Playback Rate! The higher the number, the faster the song will go.">
+		<number id="playbackRate" name="Playback Rate" desc="Change the playback rate! The higher, the faster the song will go by." min="0.25" max="3" change="0.25"/>
+		<checkbox id="midsongPlaybackRate" name="Change Midsong" desc="If checked, the playback rate will be changeable mid song by using the keys Q and E."/>
+	</menu>
+<choice id="hitsoundStyle" name="Hitsound Type">
+<!-- default -->
+		<value name="None" value="none"/>
+<!-- mods & games -->
+		<value name="Psych" value="psych"/>
+<value name="Dave n Bambi" value="bambi"/>
+<value name="Indie Cross" value="indieCross"/>
+<value name="ADOFAI" value="adofai"/> <!-- a dance of fire and ice -->
+<!-- memes -->
+<value name="Discord Ping" value="ping"/>
+<value name="FIRE IN THE HOLE" value="lobotomy"/>
+<value name="Vine Boom" value="vineBoom"/>
+<!-- irl -->
+<value name="Keyboard" value="keyboard"/>
+<value name="Finger Snap" value="snap"/>
+<value name="Hand Clap" value="clap"/>
+	</choice>
+</menu>

@@ -1,0 +1,14 @@
+{
+    "params": [
+        {
+            "name": "Subtitle Text",
+            "type": "String",
+            "defaultValue": "Put your text here"
+        },
+        {
+            "name": "Text Color",
+            "type": "ColorWheel",
+            "defaultValue": "#FFFFFF"
+        }
+    ]
+}

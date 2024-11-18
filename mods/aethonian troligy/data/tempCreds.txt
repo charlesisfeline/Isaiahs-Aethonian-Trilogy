@@ -1,0 +1,4 @@
+[SCRIPTS]
+ryofanbtr9934 - subtitle event
+ThaerIsBack - some scripts
+syrup - playback rate for debug purps
