@@ -24,8 +24,8 @@ public var botplayTxt:FlxText;
 public var botplaySine:Float = 0;
 
 function create() {
-    botplayTxt = new FlxText(400, 83, FlxG.width - 800, "AUTOPLAY", 32);
-    botplayTxt.setFormat(Paths.font("youtube.ttf"), 32, FlxColor.WHITE, "center", FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+    botplayTxt = new FlxText(400, 83, FlxG.width - 800, "BOTPLAY", 32);
+    botplayTxt.setFormat(Paths.font("arial.ttf"), 32, FlxColor.WHITE, "center", FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
     botplayTxt.scrollFactor.set();
     botplayTxt.borderSize = 3;
     botplayTxt.alpha = 0;

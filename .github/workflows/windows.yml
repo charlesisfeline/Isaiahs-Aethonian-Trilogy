@@ -33,7 +33,7 @@ jobs:
         run: |
           haxelib run lime build windows
       - name: Uploading artifact (entire build)
-        uses: actions/upload-artifact@v2
+        actions/upload-artifact@main
         with:
           name: Bird Engine
           path: export/release/windows/bin
