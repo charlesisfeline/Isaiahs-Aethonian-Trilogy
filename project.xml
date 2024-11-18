@@ -142,7 +142,7 @@
 	<define name="THREE_D_SUPPORT" />
 
 	<!-- Comment this out to disable the use of luajit. !-->
-	<define name="ENABLE_LUA" if="windows || mac || linux"/>
+	<define name="ENABLE_LUA" if="windows || mac"/>
 
 	<!-- Comment this out to disable video cutscene support, in case of compilation errors. !-->
 	<section if="cpp">
@@ -208,7 +208,7 @@
 	<haxedef name="HXCPP_GC_SUMMARY" if="cpp"/>
 	<haxedef name="HXCPP_GC_MOVING" if="cpp" />
     <haxedef name="HXCPP_GC_GENERATIONAL" if="cpp" />
-	
+
 	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
 
 	<haxedef name="hscriptPos" /> <!-- for logging -->
