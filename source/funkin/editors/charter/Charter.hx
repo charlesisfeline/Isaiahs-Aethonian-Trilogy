@@ -1805,7 +1805,7 @@ class Charter extends UIState {
 		t.icon = (Options.charterLowDetailWaveforms = !Options.charterLowDetailWaveforms) ? 1 : 0;
 		for (shader in waveformHandler.waveShaders) shader.data.lowDetail.value = [Options.charterLowDetailWaveforms];
 	}
-	
+
 	function _view_scrollleft(_) {
 		sideScroll -= 40;
 	}
@@ -2031,7 +2031,7 @@ class Charter extends UIState {
 
 	public inline function hitsoundsEnabled(id:Int) {
 		if (!isLiveCharting) return strumLines.members[id] != null && strumLines.members[id].hitsounds;
-		else rreturn false;
+		else return false;
 	}
 
 	public inline function __fixSelection(selection:Selection):Selection {
