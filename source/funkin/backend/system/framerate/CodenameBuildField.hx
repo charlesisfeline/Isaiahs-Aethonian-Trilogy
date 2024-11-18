@@ -11,7 +11,7 @@ class CodenameBuildField extends TextField {
 		defaultTextFormat = Framerate.textFormat;
 		autoSize = LEFT;
 		multiline = wordWrap = false;
-		text = 'Bird Engine (CNE ${Main.releaseCycle})\nIsaiah's Aethonian Trilogy\n(press tab to get to the mod pls)';
+		text = 'Bird Engine (CNE ${Main.releaseCycle})\nIsaiah\'s Aethonian Trilogy\n(press tab to get to the mod pls)';
 		selectable = false;
 	}
 }
