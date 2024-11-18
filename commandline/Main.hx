@@ -97,7 +97,7 @@ class Main {
 			return;
 		}
 		// shows help
-		Sys.println("Bird Engine (CNE) Command Line utility");
+		Sys.println("Isaiah's Aethos Trilogy (CNE) Command Line utility");
 		Sys.println('Available commands (${commands.length}):\n');
 		for(line in commands) {
 			Sys.println('${line.names.join(", ")} - ${line.doc}');

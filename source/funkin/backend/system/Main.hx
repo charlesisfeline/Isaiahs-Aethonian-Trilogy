@@ -17,6 +17,13 @@ import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import funkin.backend.system.modules.*;
 
+#if linux
+@:cppInclude('./external/gamemode_client.h')
+@:cppFileCode('
+	#define GAMEMODE_AUTO
+')
+#end
+
 #if ALLOW_MULTITHREADING
 import sys.thread.Thread;
 #end
@@ -128,7 +135,7 @@ class Main extends Sprite
 		funkin.backend.scripting.GlobalScript.init();
 		#end
 		#if (sys && TEST_BUILD)
-			trace("Used bird test / bird build. Switching into source assets.");
+			trace("Used iat test / iat build. Switching into source assets.");
 			#if MOD_SUPPORT
 				ModsFolder.modsPath = './${pathBack}mods/';
 				ModsFolder.addonsPath = './${pathBack}addons/';

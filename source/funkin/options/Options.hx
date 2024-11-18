@@ -123,7 +123,7 @@ class Options
 
 	public static function load() {
 		if (__save == null) __save = new FlxSave();
-		__save.bind("options", "BirdEngine");
+		__save.bind("options", "IsaiahsAethonianTrilogy");
 		__load();
 
 		if (!__eventAdded) {

@@ -1,33 +1,25 @@
-# Friday Night Funkin' - Bird Engine
-## DISCLAIMER - THIS IS A SUB-ENGINE OF [CODENAME ENGINE](https://github.com/FNF-CNE-Devs/CodenameEngine)
+# Friday Night Funkin' - Isaiah's Aethonian Trilogy
+## this uses modified [CODENAME ENGINE](https://github.com/FNF-CNE-Devs/CodenameEngine) cuz yes
 
-Originally used on FNF Vs SC. This custom engine includes the following features
 
-- Modchart aggregates
-	- Skewable notes
+- Skewable notes????
+- LIVE CHARTING
+- Full(?) Lua Script support Gameplay Scripting, customizable states, we did not finish NDLL managing in LUA yet sorry
 
-- Full Lua Script support (non-Psych)
-    - Gameplay Scripting
-	- Customizable States
-    - Custom States
-	- NDLL management (WIP)
-
-**NOTE**: Due to the limited Lua flexibility, do not consider it as a Scripting replacement, but as a complement. Remember that the main scripting system of this engine is HScript.
+**NOTE**: Due to the limited Lua flexibility, do not consider it as a scripting replacement, but rather a complement. Remember that the main scripting system of this engine is HScript.
 
 Known issues in the beta:
 - Some options are missing
 
 Build instructions are below. Press TAB on the main menu to switch mods.
 
-Also, the command `.\bird test` uses the source assets folder instead of the export one for easier development (Although you can still use `lime test windows` normally).
-
-### Original Engine Info
+Also, the command `.\iat test` uses the source assets folder instead of the export one for easier development (Although you can still use `lime test windows` normally).
 
 ## Codename Engine
 
 Codename Engine is a new Friday Night Funkin' Engine aimed at simplifying modding, along with extensiblity and ease of use.<br>
 ### Before making issues or need help with something, check the official website [HERE](https://fnf-cne-devs.github.io/) (it contains a wiki of how to mod with EXAMPLES, an api, lists of mods made with Codename Engine and more)!!!
-#### The Base Engine includes many new features, as seen [here](FEATURES.md)<br>
+#### The engine includes many new features, as seen [here](FEATURES.md)<br>
 #### Wanna see the new features added in the most recent update? Click [here](PATCHNOTES.md)<br>
 
 ## How to download
@@ -43,7 +35,7 @@ In the future (when the engine won't be a WIP anymore) we're gonna also publish 
     <summary>Windows</summary>
 
 ##### Tested on Windows 10 21H2
-1. Install [version 4.2.5 of Haxe](https://haxe.org/download/version/4.2.5/).
+1. Install [version 4.2.5 of Haxe](https://haxe.org/download/version/4.2.5/). (IAT uses 4.3.x stuff tho, ik codename is kinda funky in versions after 4.2.5 but its all we can really do buddy)
 2. Download and install [`git-scm`](https://git-scm.com/download/win).
     - Leave all installation options as default.
 3. Run `update.bat` using cmd or double-clicking it, and wait for the libraries to install.
@@ -54,7 +46,7 @@ In the future (when the engine won't be a WIP anymore) we're gonna also publish 
     <summary>Linux</summary>
 
 ##### Requires testing
-1. Install [version 4.2.5 of Haxe](https://haxe.org/download/version/4.2.5/).
+1. Install [version 4.2.5 of Haxe](https://haxe.org/download/version/4.2.5/). (IAT uses 4.3.x stuff tho, ik codename is kinda funky in versions after 4.2.5 but its all we can really do buddy)
 2. Install `g++`, if not present already.
 3. Download and install [`git-scm`](https://git-scm.com/download/linux).
 4. Open a terminal in the Codename Engine source folder, and run `update.sh`.
@@ -65,7 +57,7 @@ In the future (when the engine won't be a WIP anymore) we're gonna also publish 
     <summary>MacOS</summary>
 
 ##### Requires testing
-1. Install [version 4.2.5 of Haxe](https://haxe.org/download/version/4.2.5/).
+1. Install [version 4.2.5 of Haxe](https://haxe.org/download/version/4.2.5/). (IAT uses 4.3.x stuff tho, ik codename is kinda funky in versions after 4.2.5 but its all we can really do buddy)
 2. Install `Xcode` to allow C++ app building.
 3. Download and install [`git-scm`](https://git-scm.com/download/mac).
 4. Open a terminal in the Codename Engine source folder, and run `update.sh`.

@@ -1,5 +1,5 @@
-# Bird Engine features
-This markdown file contains every single feature Bird(Codename) has, separated into multiple categories. List may be incomplete.
+# Codename Engine features
+This markdown file contains every single feature Codename has, separated into multiple categories. List may be incomplete.
 
 _**QOL = Quality of Life**_
 

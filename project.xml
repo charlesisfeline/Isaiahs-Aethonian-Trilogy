@@ -2,15 +2,15 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 	<app
-		title="Friday Night Funkin' - Bird Engine" main="funkin.backend.system.Main"
-		file="BirdEngine" packageName="com.jamextreme140.birdengine"
-		package="com.jamextreme140.birdengine"
-		version="1.2.1" company="Jamextreme140" />
+		title="Friday Night Funkin' - Codename Engine (IAT Build)" main="funkin.backend.system.Main"
+		file="CodenameEngine" packageName="com.isaiahdoesthings.codenameengine"
+		package="com.isaiahdoesthings.codenameengine"
+		version="1.0.0" company="IsaiahDoesThings" />
 
 	<!--
 		CHANGE THE SAVE PATH & NAME FOR YOUR MOD HERE!
 	-->
-	<app save-path="Jamextreme140/BirdEngine" save-name="save-default" mod-saves="true" />
+	<app save-path="IsaiahDoesThings/IsaiahsAethonianTrilogy" save-name="save-default" mod-saves="true" />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
 	<set name="APP_ID" value="0x0100f6c013bbc000" />

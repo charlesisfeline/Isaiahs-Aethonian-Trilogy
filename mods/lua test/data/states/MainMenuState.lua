@@ -22,7 +22,7 @@ function postCreate()
 	setTimer('cancelFabiTween', 5, 1)
 	startTimer('cancelFabiTween')
 
-	createText('luaText', 'Bird Engine', posX, 500, 0, 27, 'default')
+	createText('luaText', 'what uhhhh', posX, 500, 0, 27, 'default')
 	addSprite('luaText', 'default')
 	initShader('chromaticAberration')
 	addShader('default', 'chromaticAberration')

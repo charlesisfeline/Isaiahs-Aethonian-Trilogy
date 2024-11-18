@@ -14,7 +14,7 @@ function postCreate()
 	setSpriteScale('fabi', 0.2, 0.2)
 	tween('fabitween', 'fabi', 'x', posX + 100, (60/curBpm), 'circinout', 'pingpong', 0)
 
-	createText('luaText', 'Bird Engine', posX + 50, 90, 0, 27, 'camHUD')
+	createText('luaText', 'Isaiahs Aethonian Trilogy', posX + 50, 90, 0, 27, 'camHUD')
 	addSprite('luaText', 'camHUD')
 	initShader('chromaticAberration')
 	addShader('camGame', 'chromaticAberration')

@@ -27,7 +27,7 @@ class FunkinSave {
 		//trace(Application.current.meta.get('save-path'));
 		//trace(Application.current.meta.get('save-name'));
 		save = new FlxSave();
-		save.bind('save-default', #if sys 'Jamextreme140/BirdEngine' #else 'BirdEngine' #end);
+		save.bind('save-default', #if sys 'IsaiahDoesThings/IsaiahsAethonianTrilogy' #else 'IsaiahsAethonianTrilogy' #end);
 		load();
 
 		if (!__eventAdded) {

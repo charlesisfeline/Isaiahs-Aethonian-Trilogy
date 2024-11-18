@@ -35,7 +35,7 @@ jobs:
       - name: Uploading artifact (entire build)
         uses: actions/upload-artifact@main
         with:
-          name: Bird Engine
+          name: Codename IAT
           path: export/release/windows/bin
       # - name: Uploading artifact (executable)
       #   uses: actions/upload-artifact@v2
