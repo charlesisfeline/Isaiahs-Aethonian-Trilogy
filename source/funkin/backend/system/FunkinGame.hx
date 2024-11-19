@@ -1,6 +1,13 @@
 package funkin.backend.system;
 
+import haxe.Exception;
+
+import funkin.OopsState;
+
 import flixel.FlxGame;
+import flixel.addons.transition.FlxTransitionableState;
+
+import openfl.events.Event;
 
 class FunkinGame extends FlxGame {
 	var skipNextTickUpdate:Bool = false;
