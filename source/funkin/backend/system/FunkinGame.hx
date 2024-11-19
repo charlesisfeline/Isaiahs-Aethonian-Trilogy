@@ -12,12 +12,6 @@ class FunkinGame extends FlxGame {
 		skipNextTickUpdate = true;
 	}
 
-	public override function onEnterFrame(t) {
-		if (skipNextTickUpdate != (skipNextTickUpdate = false))
-			_total = ticks = getTicks();
-		super.onEnterFrame(t);
-	}
-
 	override function create(_:Event)
     {
         try
@@ -54,10 +48,13 @@ class FunkinGame extends FlxGame {
         }
     }
     
-    override function onEnterFrame(_:Event)
+    public override function onEnterFrame(_:Event)
     {
         try
         {
+			if (skipNextTickUpdate != (skipNextTickUpdate = false))
+				_total = ticks = getTicks();
+
             super.onEnterFrame(_);
         }
         catch (e:Exception)
