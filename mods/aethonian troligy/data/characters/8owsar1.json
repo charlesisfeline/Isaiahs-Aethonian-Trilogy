@@ -1,0 +1,80 @@
+{
+	"animations": [
+		{
+			"offsets": [
+				0,
+				0
+			],
+			"indices": [],
+			"fps": 24,
+			"anim": "idle",
+			"loop": false,
+			"name": "8owserthos idle"
+		},
+		{
+			"offsets": [
+				10,
+				-5
+			],
+			"indices": [],
+			"fps": 23,
+			"anim": "singDOWN",
+			"loop": false,
+			"name": "8owserthos down"
+		},
+		{
+			"offsets": [
+				12,
+				-4
+			],
+			"indices": [],
+			"fps": 24,
+			"anim": "singUP",
+			"loop": false,
+			"name": "8owserthos up"
+		},
+		{
+			"offsets": [
+				0,
+				0
+			],
+			"indices": [],
+			"fps": 24,
+			"anim": "singLEFT",
+			"loop": false,
+			"name": "8owserthos left"
+		},
+		{
+			"offsets": [
+				0,
+				0
+			],
+			"indices": [],
+			"fps": 24,
+			"anim": "singRIGHT",
+			"loop": false,
+			"name": "8owserthos right"
+		}
+	],
+	"vocals_file": "",
+	"no_antialiasing": true,
+	"image": "characters/8owsar_1",
+	"position": [
+		-200,
+		0
+	],
+	"healthicon": "ang8owser",
+	"flip_x": false,
+	"healthbar_colors": [
+		88,
+		55,
+		40
+	],
+	"camera_position": [
+		0,
+		-60
+	],
+	"sing_duration": 6.1,
+	"scale": 1.2,
+	"_editor_isPlayer": false
+}
